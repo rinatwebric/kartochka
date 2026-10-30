@@ -70,7 +70,7 @@ export function BatchTable({ rows }: { rows: BatchRow[] }): React.ReactElement {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.fileName} className="border-b border-white/5 last:border-0">
+            <tr key={row.fileName} className="border-b border-white/5 transition-colors last:border-0 hover:bg-accent/[0.04]">
               <td className="max-w-[220px] truncate px-4 py-3 font-medium text-paper">
                 {row.jobId !== null ? (
                   <a

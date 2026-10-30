@@ -251,7 +251,7 @@ export default function BatchPage(): React.ReactElement {
     <main className="min-h-screen bg-ink-950 text-paper">
       <div className="mx-auto max-w-6xl px-6 py-10">
         <p className="text-xs font-semibold text-faint">Батч-режим</p>
-        <h1 className="mt-2 max-w-2xl text-3xl font-extrabold tracking-tight md:text-4xl">
+        <h1 className="mt-2 max-w-2xl font-display text-2xl font-bold tracking-tight md:text-3xl">
           Каталог за один прогон
         </h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">

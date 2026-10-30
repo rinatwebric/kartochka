@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Unbounded } from "next/font/google";
 import "./globals.css";
 
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
   variable: "--font-sans",
+  display: "swap",
+});
+
+const unbounded = Unbounded({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-display",
+  weight: ["500", "700", "800"],
   display: "swap",
 });
 
@@ -20,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <html lang="ru" className={`dark ${manrope.variable}`}>
+    <html lang="ru" className={`dark ${manrope.variable} ${unbounded.variable}`}>
       <body className="min-h-screen bg-ink-950 font-sans text-paper antialiased">
         {children}
       </body>

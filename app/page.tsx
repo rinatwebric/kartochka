@@ -84,7 +84,7 @@ export default function HomePage(): React.ReactElement {
         <div className="mx-auto max-w-6xl px-6 py-14">
           <h2
             id="upload-title"
-            className="max-w-xl text-2xl font-extrabold tracking-tight md:text-3xl"
+            className="max-w-xl font-display text-xl font-bold tracking-tight md:text-2xl"
           >
             Загрузите фото и выберите площадку
           </h2>
@@ -131,25 +131,27 @@ export default function HomePage(): React.ReactElement {
         <div className="mx-auto max-w-6xl px-6 py-14">
           <h2
             id="why-title"
-            className="max-w-xl text-2xl font-extrabold tracking-tight md:text-3xl"
+            className="max-w-xl font-display text-xl font-bold tracking-tight md:text-2xl"
           >
             Почему площадка не примет фото само по себе
           </h2>
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+          <ul className="mt-8 divide-y divide-white/10 border-y border-white/10">
             {REJECTS.map((item) => (
-              <li
-                key={item.title}
-                className="flex gap-4 rounded-card border border-white/10 bg-ink-900 p-5"
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-ink-700">
+              <li key={item.title} className="flex gap-4 py-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-ink-800">
                   <item.icon
                     className="h-5 w-5 text-accent"
                     aria-hidden="true"
                   />
                 </span>
-                <span>
-                  <span className="block font-bold">{item.title}</span>
-                  <span className="mt-1 block text-sm leading-relaxed text-muted">
+                <span className="min-w-0">
+                  <span className="block font-bold">
+                    {item.title}{" "}
+                    <span className="ml-1 rounded-chip bg-red-400/15 px-2 py-0.5 align-middle text-[11px] font-bold text-red-300">
+                      режут
+                    </span>
+                  </span>
+                  <span className="mt-1 block max-w-2xl text-sm leading-relaxed text-muted">
                     {item.text}
                   </span>
                 </span>

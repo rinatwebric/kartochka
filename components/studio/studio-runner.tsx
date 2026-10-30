@@ -136,7 +136,7 @@ export function StudioRunner({ id }: StudioRunnerProps): React.ReactElement {
         <p className="text-xs font-semibold text-faint">
           Студия · {job.marketplace} · {job.id.slice(0, 8)}
         </p>
-        <h1 className="mt-2 max-w-3xl text-3xl font-extrabold tracking-tight md:text-4xl">
+        <h1 className="mt-2 max-w-3xl font-display text-2xl font-bold tracking-tight md:text-3xl">
           {hasCopy ? job.copy.title : "Собираю карточку"}
         </h1>
 
@@ -231,9 +231,9 @@ export function StudioRunner({ id }: StudioRunnerProps): React.ReactElement {
             <section aria-label="Метрики" className="rounded-card border border-white/10 bg-ink-900 p-5">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <p className="text-3xl font-extrabold tabular-nums">
+                  <p className="font-display text-3xl font-bold tabular-nums">
                     {job.metrics.score}
-                    <span className="text-base text-faint">/100</span>
+                    <span className="font-sans text-base font-semibold text-faint">/100</span>
                   </p>
                   <p className="mt-1 text-xs text-muted">соответствие</p>
                 </div>
@@ -275,6 +275,19 @@ export function StudioRunner({ id }: StudioRunnerProps): React.ReactElement {
                         {!item.ok && item.fix !== undefined && (
                           <span className="mt-1 block text-sm leading-relaxed text-paper/90">{item.fix}</span>
                         )}
+                        <span
+                          aria-hidden="true"
+                          title={`Вес пункта: ${item.weight}`}
+                          className="mt-2 block h-1 w-32 overflow-hidden rounded-full bg-white/10"
+                        >
+                          <span
+                            className={cn(
+                              "block h-full rounded-full",
+                              item.ok ? "bg-emerald-400/70" : "bg-accent/80",
+                            )}
+                            style={{ width: `${Math.min(100, Math.max(6, (item.weight / 25) * 100))}%` }}
+                          />
+                        </span>
                       </span>
                     </li>
                   ))}

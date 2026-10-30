@@ -3,25 +3,33 @@
 @theme {
   --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, Arial, sans-serif;
+  --font-display: "Unbounded", "Manrope", ui-sans-serif, system-ui, sans-serif;
 
-  --color-ink-950: #0c0e12;
-  --color-ink-900: #12151c;
-  --color-ink-800: #171c26;
-  --color-ink-700: #232b3a;
+  --color-ink-950: #100c18;
+  --color-ink-900: #181222;
+  --color-ink-800: #221a33;
+  --color-ink-700: #32264d;
 
-  --color-paper: #f2f4f7;
-  --color-muted: #9aa3b2;
-  --color-faint: #6b7484;
+  --color-paper: #f5f1fa;
+  --color-muted: #a89cc4;
+  --color-faint: #6f6488;
 
-  --color-accent: #ffc531;
-  --color-accent-soft: #ffd968;
-  --color-accent-ink: #1a1300;
+  --color-accent: #cb11ab;
+  --color-accent-soft: #d11aad;
+  --color-accent-ink: #ffffff;
+  --color-lavender: #d9b8ff;
+
+  --color-wb: #cb11ab;
+  --color-ozon: #5b93ff;
+  --color-amazon: #ff9900;
 
   --radius-card: 14px;
+  --radius-shelf: 20px;
   --radius-control: 10px;
-  --radius-chip: 8px;
+  --radius-chip: 999px;
 
   --shadow-lift: 0 12px 32px rgb(0 0 0 / 0.45);
+  --shadow-case: 0 0 0 1px rgb(203 17 171 / 0.35), 0 24px 80px rgb(203 17 171 / 0.18);
   --shadow-flat: 0 1px 0 rgb(255 255 255 / 0.06) inset;
 }
 

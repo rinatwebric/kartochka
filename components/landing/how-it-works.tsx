@@ -28,32 +28,35 @@ export function HowItWorks(): React.ReactElement {
       <div className="mx-auto max-w-6xl px-6 py-14">
         <h2
           id="how-title"
-          className="max-w-xl text-2xl font-extrabold tracking-tight md:text-3xl"
+          className="max-w-xl font-display text-xl font-bold tracking-tight md:text-2xl"
         >
           Как это работает
         </h2>
-        <ol className="mt-8 grid gap-4 md:grid-cols-3">
+        <ol className="mt-10 grid gap-8 md:grid-cols-3 md:gap-6">
           {STEPS.map((step, index) => (
-            <li
-              key={step.title}
-              className="rounded-card border border-white/10 bg-ink-900 p-6"
-            >
-              <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-control bg-ink-700">
-                  <step.icon
-                    className="h-5 w-5 text-accent"
-                    aria-hidden="true"
-                  />
-                </span>
+            <li key={step.title} className="relative">
+              <div className="flex items-center gap-4">
                 <span
-                  className="text-sm font-bold text-faint tabular-nums"
                   aria-hidden="true"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-accent/50 bg-accent/10 font-display text-sm font-bold text-accent"
                 >
                   0{index + 1}
                 </span>
+                {index < STEPS.length - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="hidden h-px flex-1 bg-accent/25 md:block"
+                  />
+                )}
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-ink-800 md:ml-0">
+                  <step.icon
+                    className="h-5 w-5 text-lavender"
+                    aria-hidden="true"
+                  />
+                </span>
               </div>
               <h3 className="mt-4 text-lg font-bold">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
                 {step.text}
               </p>
             </li>

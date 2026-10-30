@@ -40,7 +40,7 @@ export default async function PublicResultPage({
         <p className="text-xs font-semibold text-faint">
           {marketplace} · публичный результат
         </p>
-        <h1 className="mt-2 max-w-3xl text-3xl font-extrabold tracking-tight md:text-4xl">
+        <h1 className="mt-2 max-w-3xl font-display text-2xl font-bold tracking-tight md:text-3xl">
           {hasCopy ? job.copy.title : "Карточка ещё собирается"}
         </h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
@@ -56,8 +56,11 @@ export default async function PublicResultPage({
               alt={hasCopy ? `Главный кадр: ${job.copy.title}` : "Главный кадр карточки"}
               className="aspect-[3/4] w-full rounded-chip bg-white object-contain"
             />
-            <p className="mt-3 text-sm tabular-nums text-muted">
-              Соответствие {job.metrics.score} / 100 · {passedCount} из {job.checklist.length} пунктов
+            <p className="mt-3 flex flex-wrap items-center gap-2 text-sm tabular-nums text-muted">
+              <span className="rounded-chip bg-accent px-2.5 py-1 text-xs font-bold text-accent-ink">
+                {job.metrics.score} / 100
+              </span>
+              {passedCount} из {job.checklist.length} пунктов
             </p>
           </section>
 
