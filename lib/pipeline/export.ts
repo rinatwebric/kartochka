@@ -2,40 +2,15 @@ import { z } from "zod";
 import { copySchema, formatCardTxt, type Copy } from "./copy";
 import { loadJob, readStepResult, StepError } from "./state";
 import { checklistItemSchema, composeResultSchema, type ChecklistItem } from "./types";
+import { EXPORT_FILES, exportPayloadSchema, type ExportPayload } from "./export-schema";
+
+export { EXPORT_FILES, exportPayloadSchema };
+export type { ExportPayload };
 
 // Экспорт T6: сервер отдаёт данные и файлы, а ZIP собирает браузер
 // (см. MASTER.md 3 и DECISIONS: сервер не участвует в сборке архива).
-
-export const EXPORT_FILES = ["main.jpg", "mask.png", "card.json", "card.txt", "checklist.json"] as const;
-
-export const exportPayloadSchema = z.object({
-  id: z.string().min(1),
-  marketplace: z.string().min(1),
-  copy: copySchema,
-  checklist: z.array(checklistItemSchema),
-  compliance: z.number(),
-  score: z.number(),
-  metrics: z.object({
-    identity: z.number(),
-    compliance: z.number(),
-    retries: z.number(),
-    productFill: z.number(),
-    score: z.number(),
-    credits: z.number(),
-    ms: z.number(),
-  }),
-  promptIds: z.object({
-    compose: z.string(),
-    identity: z.string(),
-    copy: z.string(),
-  }),
-  cardTxt: z.string().min(1),
-  assets: z.object({
-    main: z.string().min(1),
-    mask: z.string().nullable(),
-  }),
-});
-export type ExportPayload = z.infer<typeof exportPayloadSchema>;
+// Схемы и имена файлов живут в ./export-schema (без node:fs), чтобы
+// клиентский ResultActions мог их импортировать без node:fs в бандле.
 
 export interface ExportFiles {
   cardJson: string;

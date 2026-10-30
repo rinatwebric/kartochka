@@ -16,19 +16,30 @@ function formatTotal(files: ReadonlyArray<File>): string {
   return formatBytes(total);
 }
 
-export function Dropzone(): React.ReactElement {
+export function Dropzone({
+  onFiles,
+}: {
+  onFiles?: (files: Array<File>) => void;
+}): React.ReactElement {
   const [files, setFiles] = useState<Array<File>>([]);
   const [dragging, setDragging] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const addFiles = useCallback((incoming: FileList | Array<File>): void => {
-    const list: Array<File> = Array.from(incoming).filter((file) =>
-      /image\/(jpeg|png|webp)/.test(file.type),
-    );
-    if (list.length === 0) return;
-    setFiles((prev) => [...prev, ...list]);
-  }, []);
+  const addFiles = useCallback(
+    (incoming: FileList | Array<File>): void => {
+      const list: Array<File> = Array.from(incoming).filter((file) =>
+        /image\/(jpeg|png|webp)/.test(file.type),
+      );
+      if (list.length === 0) return;
+      setFiles((prev) => {
+        const next = [...prev, ...list];
+        onFiles?.(next);
+        return next;
+      });
+    },
+    [onFiles],
+  );
 
   useEffect(() => {
     if (files.length === 0) {
@@ -44,7 +55,8 @@ export function Dropzone(): React.ReactElement {
 
   const clearAll = useCallback((): void => {
     setFiles([]);
-  }, []);
+    onFiles?.([]);
+  }, [onFiles]);
 
   return (
     <div>

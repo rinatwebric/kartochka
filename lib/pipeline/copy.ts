@@ -5,7 +5,10 @@ import { isMock } from "../env";
 import { SPARK_MODEL, askSpark } from "../models/spark";
 import { getActivePromptSet } from "../prompts/registry";
 import { loadJob, readStepResult, saveJob } from "./state";
-import { marketplaceSchema } from "./types";
+import { copySchema, marketplaceSchema, type Copy } from "./types";
+
+export { copySchema };
+export type { Copy };
 
 // Текст карточки T6: muse-spark по фото (и категории) даёт title/description/specs.
 // Все числа — только из rules/<marketplace>.json (limits), в коде их нет.
@@ -21,13 +24,6 @@ const SPECS_MAX = 8;
 const SPEC_VALUE_MAX = 200;
 const DESCRIPTION_SENTENCES_MIN = 3;
 const DESCRIPTION_SENTENCES_MAX = 5;
-
-export const copySchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  specs: z.record(z.string(), z.string()),
-});
-export type Copy = z.infer<typeof copySchema>;
 
 export interface CopyLimits {
   titleMax: number;

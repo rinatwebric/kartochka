@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isMock } from "@/lib/env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,7 +12,9 @@ const MODELS = [
   "muse-glimmer",
 ];
 
+// Флаг mock — через lib/env: без MODEL_API_KEY живой режим невозможен
+// и включается MOCK принудительно. Читать process.env напрямую здесь
+// нельзя — будет врать «mock: false» на машине без ключа.
 export async function GET(): Promise<NextResponse> {
-  const mock = process.env.MOCK === "1";
-  return NextResponse.json({ ok: true, mock, models: MODELS });
+  return NextResponse.json({ ok: true, mock: isMock(), models: MODELS });
 }

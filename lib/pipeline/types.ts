@@ -109,6 +109,13 @@ export const jobMetricsSchema = z.object({
 });
 export type JobMetrics = z.infer<typeof jobMetricsSchema>;
 
+export const copySchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  specs: z.record(z.string(), z.string()),
+});
+export type Copy = z.infer<typeof copySchema>;
+
 export const jobStateSchema = z.object({
   id: z.string(),
   marketplace: marketplaceSchema,

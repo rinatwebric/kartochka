@@ -3,7 +3,7 @@
 Обновляется агентом в конце КАЖДОЙ задачи. Следующий чат начинается с чтения этого файла.
 
 ## Текущее состояние
-T8 выполнен 30.10.2026. Реестр промптов v1/v2 и eval-стенд готовы: `pnpm evals --mock` — 20/20 кейсов (совпало с expect), json+csv созданы, сводка в консоли (прошло 12/20, средний score 94.0, худший amazon-01 score 80); `pnpm evals --mock --compare v1 v2` — Δ=0/Δ=0.0 п.п. (честно: mock обходит тексты промптов); регрессии `pnpm check:rules`, `check:copy-export`, `check:identity`, `check:pipeline` — без регрессий; `pnpm build` — Compiled successfully; grep по `any|@ts-ignore` в новых файлах — пусто. Следующая задача — T9 (полировка, деплой, README, сценарий видео, MASTER.md разделы 9, 10, 17).
+T9 выполнен 30.10.2026. QA-прогон в mock без ключа — всё зелёное (лендинг→студия, /demo, 7 шагов score 100 identity 0.944, экспорт/ассеты, /r, батч, health/stats, негативы 404/409/400); критичные баги починены (студия-заглушка, /demo 404, disabled-кнопка, враньё health/stats, node:fs в клиентском бандле); README, docs/VIDEO.md, docs/QA.md написаны; `pnpm build` чистый; `pnpm evals --mock` — 20/20 (средний score 94.0); регрессии без изменений; `any|@ts-ignore` в файлах T9 — ноль. Деплой на Vercel — вручную (доступов с этой машины нет). Следующая задача — сабмит: видео по docs/VIDEO.md, пост в X, отправка до вечера 03.11.
 
 ## Что готово
 - T1 (лендинг), T2 (клиент моделей + MOCK) без изменений: собираются, `pnpm tsx scripts/check-models.ts` по-прежнему ок.
@@ -28,7 +28,14 @@ T8 выполнен 30.10.2026. Реестр промптов v1/v2 и eval-ст
 - T7: `app/api/jobs/route.ts` (POST FormData files+marketplace → по джобе на файл, лимиты 20 файлов/15 МБ), `app/api/jobs/[id]/route.ts` (GET состояние), `app/api/jobs/[id]/step/route.ts` (POST {step} → runStep, StepError→статус); `app/batch/page.tsx` (клиентский оркестратор: создание джоб, последовательный прогон 7 шагов с шагом-меткой, таблица, «Скачать всё» — один ZIP с папками `NN-slug/`); `components/batch/batch-table.tsx` + `batch-summary.tsx` (презентация; «пройдёт» = done без красных пунктов); `lib/utils/slug.ts` (транслит для архива); `app/r/[id]/page.tsx` (read-only: кадр, чек-лист с замерами/fix, текст, «сделано в КАРТОЧКА за N с и M кредитов», 404 на неизвестный id; схема экспорта в батче локальная — полный модуль тянет node:fs в клиентский бандл).
 
  ## Что дальше
-T9: полировка, деплой, README, сценарий видео (MASTER.md разделы 9, 10, 17).
+Сабмит (руками): задеплоить на Vercel (`pnpm build` чистый, рантаймы nodejs+force-dynamic, sharp в serverExternalPackages), снять видео по docs/VIDEO.md, пост в X с до/после, отправить до вечера 03.11 (дедлайн 04.11 21:00 ET). Кандидаты на следующий проход (не блокеры демо): `GET /api/rules/<mp>` и `POST /api/demo` из структуры MASTER §4, `fixtures/demo/` с предсчитанной джобой.
+
+## T9 (готово 30.10.2026)
+- Студия: `components/studio/studio-runner.tsx` (шаги, до/после, чек-лист с fix, метрики, `ResultActions`, ссылка на `/r`) + серверная обёртка `app/studio/[id]/page.tsx` (была заглушка); лендинг проводка: `Dropzone onFiles` + активная «Собрать карточку» → `POST /api/jobs` → студия; новый `app/demo/page.tsx` (джоба из synthetic-1.jpg → редирект в студию, чинит 404 hero-ссылки).
+- Правдивые API: `health` через `isMock()` (без ключа `mock:true`), `stats` считает джобы/cards/кредиты/score по `job.json` (были нули); `.env.example` — пустой ключ + MOCK-комментарий.
+- Развязка бандла: `lib/pipeline/export-schema.ts` (только zod, для клиента), `copySchema` переехала в `lib/pipeline/types.ts`, `copy.ts`/`export.ts` реэкспортируют — старые импорты живы, `check:*` зелёные.
+- Доки: README (запуск, MOCK, таблица моделей, what-built, ограничения, ссылки), `docs/VIDEO.md` (3:00 по секундам), `docs/QA.md` (HTTP-прогон без ключа + таблица багов); свежий eval-отчёт `evals/report/20261030-125803-mock-v1.*` закоммичен.
+- Проверка: `pnpm build` чистый; `evals --mock` 20/20 (score 94.0); HTTP в mock: 7 шагов score 100/identity 0.944, export+asset 200, негативы 404/409/400; `any|@ts-ignore` — ноль.
 
 ## T8 (готово 30.10.2026)
 - `lib/prompts/registry.ts` (+`v1.ts`, `v2.ts`): наборы промптов с `id`, версия из `PROMPT_VERSION` (дефолт v1); все вызовы моделей берут текст и id из реестра: segment (промпт категории), identity (judge-промпт + `promptId`), rules (vision-промпты), copy (билдер + `copyId`); `promptIds` в `job.json` и отчёте стенда.

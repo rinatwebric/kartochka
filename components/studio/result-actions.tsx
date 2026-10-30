@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Download, Loader2 } from "lucide-react";
-import { EXPORT_FILES, exportPayloadSchema } from "@/lib/pipeline/export";
+import { EXPORT_FILES, exportPayloadSchema } from "@/lib/pipeline/export-schema";
 import { buildZip } from "@/lib/utils/zip";
 import { cn } from "@/lib/utils/cn";
 
