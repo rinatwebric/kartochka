@@ -3,7 +3,7 @@
 Обновляется агентом в конце КАЖДОЙ задачи. Следующий чат начинается с чтения этого файла.
 
 ## Текущее состояние
-T3 выполнен 30.10.2026. Ядро продукта готово: `pnpm check:pipeline` — 3/3 PASS в mock-режиме без ключа (fill=0.633, bg_white=1.0000, edge=ok, ~700 мс/файл, 0 кредитов), `pnpm build` — Compiled successfully. Следующая задача — T4 (identity gate + петля ретраев).
+T4 выполнен 30.10.2026. Identity gate готов: `pnpm check:identity` — same 0.9441 (≥0.90 PASS), substituted 0.5425 (<0.90), retry-loop 2 ретрая + красный checklist; `pnpm check:pipeline` — 3/3 PASS без изменений; `pnpm build` — Compiled successfully. Следующая задача — T5 (движок регламента rules + checklist + fix hints).
 
 ## Что готово
 - T1 (лендинг), T2 (клиент моделей + MOCK) без изменений: собираются, `pnpm tsx scripts/check-models.ts` по-прежнему ок.
@@ -14,17 +14,21 @@ T3 выполнен 30.10.2026. Ядро продукта готово: `pnpm ch
 - `lib/pipeline/compose.ts`: детерминированный коллаж на холст из `rules/<mp>.json` (дефолт 900x1200), fill = середина диапазона площадки; сейв `<src>.main.jpg` + `<src>.main.mask.png` (инверсный маппинг маски, без дыр); `modelUsed=false` (вариант B, см. DECISIONS).
 - `lib/pipeline/whitebg.ts`: эрозия 2px, всё вне → ровно 255,255,255, выход PNG; `changedInside>0.02` или вырожденная маска → откат к предыдущему кадру + `rolledBack=true`.
 - `lib/pipeline/state.ts`: Map + `os.tmpdir()/jobs/<id>/job.json`, `createJob/loadJob/saveJob`, `readStepResult/writeStepResult`, `StepError` (404/409/500, `missing[]`).
-- `lib/pipeline/runner.ts`: `runStep(job, step)` для inspect→segment→compose→whitebg: prereq-409, тайминг, дельта кредитов, `job.json`; повтор перезаписывает; шаги T4+ → 409 «не реализован».
+- `lib/pipeline/runner.ts`: `runStep(job, step)` для inspect→segment→compose→whitebg→identity: prereq-409, тайминг, дельта кредитов, `job.json`; повтор перезаписывает; шаги T5+ → 409 «не реализован».
 - `scripts/check-pipeline.ts` (+`pnpm check:pipeline`): генерация 3 synthetic-jpg при пустой `fixtures/photos`, прогон через runner, печать size/fill/bg_white/edge/method/ms/credits, assert fill∈[0.6,0.9] и bg_white≥0.99, exit 1 при провале.
 - `.gitignore`: `*.mask.png`, `*.main.jpg`, `*.white.png` — в `fixtures/photos` коммитим только `synthetic-*.jpg`.
 - `docs/DECISIONS.md`: +6 строк T3 (вариант B, цепочка маски, target fill, sharpness-порог, эрозия/откат, tmpdir, игнор артефактов).
 - Проверка: `pnpm check:pipeline` — 3/3 PASS; `pnpm build` — Compiled successfully, типы ок; grep по `any|@ts-ignore` в `lib/` — пусто.
+- T4: `lib/utils/phash.ts` (DCT 32x32→8x8, медиана по 63 AC, bigint-hex, hamming 0..64), `lib/utils/hsv.ts` (H16/S4/V4=256, Пирсон), `lib/utils/ssim.ts` (настоящий SSIM, окно 8x8 на 256, `ssimOnMask` по покрытию >50%).
+- T4: `lib/pipeline/identity.ts` (формула 0.35/0.25/0.25/0.15, порог 0.90; кропы по bbox с инсетом 3%; glimmer 3 голоса; `IDENTITY_FORCE_FAIL=1`; `identityResultSchema`).
+- T4: петля в runner (identity<0.90 → до 2 ретраев `compose-v2-enhanced`, `attempts.identity`, `metrics.retries`, красный checklist); `scripts/check-identity.ts` + `pnpm check:identity` (same 0.9441 PASS, substituted 0.5425 FAIL-ожидаемо, loop retries=2).
 
 ## Что дальше
-T4: identity gate и петля ретраев (MASTER.md раздел 8; скиллы test-driven-development, systematic-debugging). Задел из T3: `compose.main.mask.png` в координатах кадра — под SSIM по маске; `attempts.compose/identity` уже считаются в runner.
+T5: движок регламента, чек-лист, fix hints (MASTER.md раздел 7; скиллы to-spec, test-driven-development). Задел: identity пишет пункт `identity` (weight 0) и `metrics.identity/retries`; финалы `<src>.main.white.png` + маски — под `pixels_white`/`fill`/`not_cropped`.
 
 ## Открытые вопросы
 - Живой ответ sam-3.1 (special-token маски) не виден без ключа — ветка `sam-mask` написана вслепую по DECISIONS T2 и отработает только при совпадении формата; первый живой прогон делать осторожно, смотреть `method` в отчёте.
-- Живой `muse-glimmer` через Model API, скорее всего, вернёт 404 (self-host) — решение за T4.
+- Живой `muse-glimmer` через Model API, скорее всего, вернёт 404 (self-host) — в T4 judge идёт на тот же base URL, в mock всегда same=true 3/3; честная строка для README — в DECISIONS.
+- Детерминированный compose самозалечивает подмену (рекомпоз из source всегда same), поэтому петля в стенде на persistent-провале симулируется `IDENTITY_FORCE_FAIL=1` (иначе mock-glimmer не отличить).
 - `pnpm lint` (next lint) не прогонялся; `pnpm build` проходит без ошибок типов.
 - На что смотреть: mock-боксы sam фиксированы (0.25,0.15,0.5,0.7) — fill после compose всегда 0.633 на синтетике; разнообразие даст только живой SAM или фото с другим фоном под bg-removal.

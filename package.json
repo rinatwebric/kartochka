@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "evals": "echo \"evals: not implemented yet\"",
-    "check:pipeline": "tsx scripts/check-pipeline.ts"
+    "check:pipeline": "tsx scripts/check-pipeline.ts",
+    "check:identity": "tsx scripts/check-identity.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
