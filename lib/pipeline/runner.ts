@@ -1,5 +1,6 @@
 import { getCreditsTotal } from "../models/meta";
 import { composeCard } from "./compose";
+import { COPY_PROMPT_ID, writeCopy } from "./copy";
 import { IDENTITY_MAX_RETRIES, computeIdentity } from "./identity";
 import { inspectImage } from "./inspect";
 import { checkRules } from "./rules";
@@ -21,19 +22,29 @@ import {
   type WhitebgResult,
 } from "./types";
 
-// Оркестратор шагов T3+T4+T5: inspect -> segment -> compose -> whitebg -> identity -> rules.
+// Оркестратор шагов T3+T4+T5+T6: inspect -> segment -> compose -> whitebg -> identity -> rules -> copy.
 // Идемпотентность: повторный вызов перезаписывает результат шага и поля джобы.
 // Возобновление: шаг требует готовый результат предыдущего, иначе 409 со списком.
 // Identity: при провале (< 0.90) перегенерирует главный кадр с усиленным
 // промптом, максимум 2 ретрая. Compose детерминированный (вариант B), поэтому
 // ретрай структурный: пересчёт mask->compose->whitebg->identity, попытка
 // засчитывается, promptId фиксирует усиление.
-const IMPLEMENTED_STEPS: JobStep[] = ["inspect", "segment", "compose", "whitebg", "identity", "rules"];
+// Export не шаг пайплайна: архив собирает браузер из /api/jobs/{id}/export
+// и /api/jobs/{id}/asset/{name} (см. lib/pipeline/export.ts).
+const IMPLEMENTED_STEPS: JobStep[] = [
+  "inspect",
+  "segment",
+  "compose",
+  "whitebg",
+  "identity",
+  "rules",
+  "copy",
+];
 
 function requireLaterStep(step: JobStep): never {
   throw new StepError(
     409,
-    `Шаг «${step}» относится к следующим задачам (T6+) и пока не реализован. Доступны: inspect, segment, compose, whitebg, identity, rules.`,
+    `Шаг «${step}» не выполняется на сервере: экспорт собирает браузер из /api/jobs/{id}/export и /api/jobs/{id}/asset/{name}. Доступны шаги: inspect, segment, compose, whitebg, identity, rules, copy.`,
     [],
   );
 }
@@ -168,6 +179,13 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
         ];
         break;
       }
+      case "copy": {
+        const copy = await writeCopy(current.id);
+        await writeStepResult(current.id, step, copy);
+        current.copy = copy;
+        current.promptIds.copy = COPY_PROMPT_ID;
+        break;
+      }
       default:
         requireLaterStep(step);
     }
@@ -186,7 +204,7 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
   }
   const creditsAfter = getCreditsTotal();
   current.step = step;
-  current.status = step === "whitebg" || step === "identity" || step === "rules" ? "done" : "running";
+  current.status = step === "whitebg" || step === "identity" || step === "rules" || step === "copy" ? "done" : "running";
   current.metrics.ms += Date.now() - started;
   current.metrics.credits += creditsAfter - creditsBefore;
   current.error = null;

@@ -3,7 +3,7 @@
 Обновляется агентом в конце КАЖДОЙ задачи. Следующий чат начинается с чтения этого файла.
 
 ## Текущее состояние
-T5 выполнен 30.10.2026. Движок регламента готов: `pnpm check:rules` — wb/ozon PASS 100, amazon FAIL 55 (aspect/min_size/fill, ожидаемо), плохой кадр ловится (not_cropped + no_text_on_main), временный rules/test.json работает без правки кода; `pnpm build` — Compiled successfully; `pnpm check:pipeline` и `pnpm check:identity` — без регрессий. Следующая задача — T6 (текст карточки и экспорт, MASTER.md разделы 5 и 9).
+T6 выполнен 30.10.2026. Текст карточки и экспорт готовы: `pnpm check:copy-export` — 16/16 PASS (лимиты wb/ozon/amazon из rules, прогон inspect→copy в mock, ZIP ровно из 5 файлов, повтор copy идемпотентен, export без copy даёт 409); `pnpm build` — Compiled successfully; `pnpm check:rules` и `pnpm check:pipeline` — без регрессий, grep по `any|@ts-ignore` в новых файлах — пусто. Следующая задача — T7 (батч-режим и публичная страница, MASTER.md раздел 9).
 
 ## Что готово
 - T1 (лендинг), T2 (клиент моделей + MOCK) без изменений: собираются, `pnpm tsx scripts/check-models.ts` по-прежнему ок.
@@ -24,9 +24,10 @@ T5 выполнен 30.10.2026. Движок регламента готов: `p
 - T4: петля в runner (identity<0.90 → до 2 ретраев `compose-v2-enhanced`, `attempts.identity`, `metrics.retries`, красный checklist); `scripts/check-identity.ts` + `pnpm check:identity` (same 0.9441 PASS, substituted 0.5425 FAIL-ожидаемо, loop retries=2).
 - T5: `lib/pipeline/rules.ts` (пороги только из rules/*.json; кодовые типы pixels_white/aspect/min_size/fill/not_cropped; vision-типы no_text_on_main/no_watermark/single_object через `askSpark` строгим JSON {ok,confident,bbox,reason}, без уверенности — честный провал, mock — детерминированный pass; `evaluateMarketplace`/`summarize`/`checkMarketplace`/`judgeAllVision`/`checkRules(jobId)`; compliance = веса пройденных/все, score = round(*100)).
 - T5: шаг `rules` в runner (замеры из compose+whitebg+maskTouchesBorders, vision по финальному кадру, пишет metrics.compliance/score + checklist, статус done); `scripts/check-rules.ts` + `pnpm check:rules` (таблица пункт/замер/ок, кейс «Ozon PASS / Amazon FAIL», временный rules/test.json без правки кода, exit 1 при расхождении).
+- T6: `lib/pipeline/copy.ts` (muse-spark строгим JSON по финальному кадру, лимиты только из rules limits, запрет «идеальн*», нормализация + `validateCopy`, mock-фикстура, `formatCardTxt`, `COPY_PROMPT_ID=copy-v1`); шаг `copy` в runner (409 без него у export, статус done, идемпотентен); `lib/pipeline/export.ts` (`buildExportPayload`/`buildCardJson`/`buildChecklistJson`, `EXPORT_FILES` из 5 имён); `app/api/jobs/[id]/export/route.ts` + `app/api/jobs/[id]/asset/[name]/route.ts` (nodejs, force-dynamic, whitelist main.jpg/mask.png/source); `lib/utils/zip.ts` (`buildZip` через jszip, проверка дублей/пустоты); `components/studio/result-actions.tsx` (клиентский `ResultActions`: «Скачать ZIP» с блокировкой кнопки + `slugifyTitle` с транслитом, «Скопировать текст» с состоянием 2 с, ошибки человеческим текстом); `scripts/check-copy-export.ts` + `pnpm check:copy-export` (16/16 PASS).
 
-## Что дальше
-T6: текст карточки и экспорт (MASTER.md разделы 5 и 9; скилл frontend-design для блока экспорта). Задел: rules пишет пункты с id/label/measured/weight/fix/reason и metrics.compliance/score — checklist и fix-hints в UI берут их как есть; финалы `<src>.main.white.png` + маски лежат в assets.
+ ## Что дальше
+T7: батч-режим и публичная страница (MASTER.md раздел 9; скилл frontend-design). Задел: шаг copy пишет job.copy + step-файл, export отдаёт текст/чек-лист/ссылки на бинари (`buildExportPayload`), клиентский `ResultActions` уже умеет собирать ZIP одной джобы — для батча переиспользовать `buildZip` и `slugifyTitle`; публичная /r/[id] берёт те же payload + main.jpg без кнопок редактирования.
 
 ## Открытые вопросы
 - Живой ответ sam-3.1 (special-token маски) не виден без ключа — ветка `sam-mask` написана вслепую по DECISIONS T2 и отработает только при совпадении формата; первый живой прогон делать осторожно, смотреть `method` в отчёте.

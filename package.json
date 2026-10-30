@@ -10,7 +10,8 @@
     "evals": "echo \"evals: not implemented yet\"",
     "check:pipeline": "tsx scripts/check-pipeline.ts",
     "check:identity": "tsx scripts/check-identity.ts",
-    "check:rules": "tsx scripts/check-rules.ts"
+    "check:rules": "tsx scripts/check-rules.ts",
+    "check:copy-export": "tsx scripts/check-copy-export.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

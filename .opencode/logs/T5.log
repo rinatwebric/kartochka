@@ -1,0 +1,480 @@
+[0m
+> build · muse-spark-1.3-contributor
+Выполняю T5 — читаю бриф и регламент.
+[0m→ [0mRead AGENTS.md 
+[0m→ [0mRead MASTER.md 
+[0m→ [0mRead docs/HANDOFF.md 
+[0m→ [0mRead .opencode/prompts/T5.md 
+> build · muse-spark-1.3-contributor
+[0m→ [0mSkill "test-driven-development" 
+> build · muse-spark-1.3-contributor
+[0m→ [0mRead package.json 
+[0m→ [0mRead . 
+[0m→ [0mRead docs/DECISIONS.md 
+[0m→ [0mRead lib/pipeline/types.ts 
+> build · muse-spark-1.3-contributor
+[0m→ [0mRead rules 
+[0m→ [0mRead lib/models/spark.ts 
+[0m✱ [0mGlob "lib/pipeline/*.ts" [90min . · 11 matches[0m
+[0m✱ [0mGlob "scripts/*.ts" [90min . · 3 matches[0m
+> build · muse-spark-1.3-contributor
+[0m→ [0mRead rules/ozon.json 
+[0m→ [0mRead rules/wb.json 
+[0m→ [0mRead lib/pipeline/runner.ts 
+[0m→ [0mRead rules/amazon.json 
+[0m→ [0mRead lib/pipeline/rules.ts 
+> build · muse-spark-1.3-contributor
+План: движок читает только JSON, кодовые и vision-проверки раздельно, финальный стенд с тремя площадками. Смотрю задел T3–T4.
+[0m→ [0mRead scripts/check-identity.ts 
+[0m→ [0mRead lib/mock/provider.ts 
+[0m→ [0mRead lib/pipeline/whitebg.ts 
+[0m→ [0mRead lib/pipeline/compose.ts 
+[0m→ [0mRead lib/pipeline/inspect.ts 
+> build · muse-spark-1.3-contributor
+[0m→ [0mRead lib/env.ts 
+[0m→ [0mRead scripts/check-pipeline.ts 
+[0m→ [0mRead lib/models/types.ts 
+[0m→ [0mRead lib/mock/fixtures.ts 
+> build · muse-spark-1.3-contributor
+[0m→ [0mRead lib/pipeline/state.ts 
+[0m→ [0mRead lib/pipeline/identity.ts 
+> build · muse-spark-1.3-contributor
+[0m→ [0mRead tsconfig.json 
+> build · muse-spark-1.3-contributor
+Задел ясен. По TDD сначала пишу красный стенд `scripts/check-rules.ts`, смотрю падение, потом зелёный `lib/pipeline/rules.ts`.
+[0m← [0mWrite scripts/check-rules.ts
+Created file successfully: scripts/check-rules.ts
+> build · muse-spark-1.3-contributor
+[0m$ [0mpnpm tsx scripts/check-rules.ts 2>&1 | head -30
+head : ��� "head" �� �ᯮ����� ��� ��� ���������, �㭪樨, 䠩�� �業��� ��� �믮��塞�� �ணࠬ��. �஢���� �ࠢ��
+쭮��� ����ᠭ�� �����, � ⠪�� ����稥 � �ࠢ��쭮��� ���, ��᫥ 祣� ������ ������.
+��ப�:1 ����:40
++ pnpm tsx scripts/check-rules.ts 2>&1 | head -30
++                                        ~~~~
+    + CategoryInfo          : ObjectNotFound: (head:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+> build · muse-spark-1.3-contributor
+[0m$ [0mpnpm tsx scripts/check-rules.ts
+TypeError: checkMarketplace is not a function
+    at main (C:\Users\user\Desktop\kartochka\scripts\check-rules.ts:81:23)
+> build · muse-spark-1.3-contributor
+Красный прогон подтверждает: `checkMarketplace is not a function` — движка нет. Пишу зелёный код.
+[0m← [0mWrite lib/pipeline/rules.ts
+Wrote file successfully: lib/pipeline/rules.ts
+> build · muse-spark-1.3-contributor
+[0m$ [0mpnpm tsx scripts/check-rules.ts
+--- wb / хороший кадр ---
+  ok   aspect | пропорция 900×1200 (0.750, норма 0.75±0.02)
+  ok   min_size | 900×1200 px (минимум 700×900 px)
+  ok   bg_white | фон 100% белый (норма ≥ 99%)
+  ok   fill | заполнение 71% (норма 60–90%)
+  ok   not_cropped | товар целиком, края чистые
+  ok   single_object | в кадре один товар — mock: один товар в кадре
+  ok   no_text_on_main | текста, рамок и инфографики нет — mock: текста, рамок и инфографики нет
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог wb: compliance=1.000 score=100 пройдено=8/8
+PASS wb: хороший кадр проходит целиком
+--- ozon / хороший кадр ---
+  ok   aspect | пропорция 900×1200 (0.750, норма 0.75±0.02)
+  ok   min_size | 900×1200 px (минимум 200×200 px)
+  ok   bg_white | фон 100% белый (норма ≥ 99%)
+  ok   fill | заполнение 71% (норма 60–90%)
+  ok   not_cropped | товар целиком, края чистые
+  ok   single_object | в кадре один товар — mock: один товар в кадре
+  ok   no_text_on_main | текста, рамок и инфографики нет — mock: текста, рамок и инфографики нет
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог ozon: compliance=1.000 score=100 пройдено=8/8
+PASS ozon: хороший кадр проходит целиком
+--- amazon / хороший кадр ---
+  FAIL aspect | пропорция 900×1200 (0.750, норма 1±0.02)
+  FAIL min_size | 900×1200 px (минимум 1000×1000 px)
+  ok   bg_white | фон 100% белый (норма ≥ 99%)
+  FAIL fill | заполнение 71% (норма 85–98%)
+  ok   not_cropped | товар целиком, края чистые
+  ok   no_text_on_main | текста, рамок и инфографики нет — mock: текста, рамок и инфографики нет
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог amazon: compliance=0.550 score=55 пройдено=4/7
+PASS amazon: хороший 3:4 кадр НЕ проходит целиком
+PASS amazon: пункт «aspect» провален (ожидаемо)
+PASS amazon: пункт «min_size» провален (ожидаемо)
+PASS amazon: пункт «fill» провален (ожидаемо)
+--- wb / плохой кадр ---
+  FAIL aspect | пропорция 800×1200 (0.667, норма 0.75±0.02) | fix: Кадрируйте в 3:4, без подгонки растяжением | why: соотношение сторон 0.667 вне допуска 0.75±0.02: кадр не той пропорции
+  ok   min_size | 800×1200 px (минимум 700×900 px)
+  FAIL bg_white | фон 93% белый (норма ≥ 99%) | fix: Включите замену фона или переснимите на белом листе | why: белых пикселей 93% вне маски, нужно ≥ 99%: фон неоднородный, есть тени или серость
+  FAIL fill | заполнение 45% (норма 60–90%) | fix: Обрежьте лишнее поле вокруг товара | why: товар мелкий (45% < 60%): обрежьте лишнее поле вокруг
+  FAIL not_cropped | товар касается края: снизу | fix: Отойдите на шаг, чтобы товар влез полностью с отступом | why: маска упирается в край (снизу) — товар обрезан, переснимите с отступом
+  ok   single_object | в кадре один товар — mock: один товар в кадре
+  FAIL no_text_on_main | найдено: mock: плашка с текстом сверху кадра (зона 5%, 2%, 90%×12%) | fix: На первом фото не должно быть текста и плашек | why: mock: плашка с текстом сверху кадра
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог wb/bad: compliance=0.250 score=25
+PASS wb: плохой кадр не проходит
+PASS wb: обрезка снизу поймана пунктом not_cropped
+PASS wb: текст пойман пунктом no_text_on_main
+--- test (временный rules/test.json) ---
+итог test: compliance=1.000 score=100
+PASS test.json: новая площадка работает без правки кода
+failed=0
+> build · muse-spark-1.3-contributor
+Стенд зелёный: Ozon PASS, Amazon FAIL по трём пунктам, `test.json` работает без правки кода. Вшиваю шаг `rules` в runner.
+[0m← [0mEdit lib/pipeline/runner.ts
+Index: lib/pipeline/runner.ts
+===================================================================
+--- lib/pipeline/runner.ts
++++ lib/pipeline/runner.ts
+@@ -1,8 +1,9 @@
+ import { getCreditsTotal } from "../models/meta";
+ import { composeCard } from "./compose";
+ import { IDENTITY_MAX_RETRIES, computeIdentity } from "./identity";
+ import { inspectImage } from "./inspect";
++import { checkRules } from "./rules";
+ import { fixWhiteBg } from "./whitebg";
+ import { segmentProduct } from "./segment";
+ import {
+   loadJob,
+
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit lib/pipeline/runner.ts
+Index: lib/pipeline/runner.ts
+===================================================================
+--- lib/pipeline/runner.ts
++++ lib/pipeline/runner.ts
+@@ -27,14 +27,14 @@
+ // Identity: при провале (< 0.90) перегенерирует главный кадр с усиленным
+ // промптом, максимум 2 ретрая. Compose детерминированный (вариант B), поэтому
+ // ретрай структурный: пересчёт mask->compose->whitebg->identity, попытка
+ // засчитывается, promptId фиксирует усиление.
+-const IMPLEMENTED_STEPS: JobStep[] = ["inspect", "segment", "compose", "whitebg", "identity"];
++const IMPLEMENTED_STEPS: JobStep[] = ["inspect", "segment", "compose", "whitebg", "identity", "rules"];
+ 
+ function requireLaterStep(step: JobStep): never {
+   throw new StepError(
+     409,
+-    `Шаг «${step}» относится к следующим задачам (T5+) и пока не реализован. Доступны: inspect, segment, compose, whitebg, identity.`,
++    `Шаг «${step}» относится к следующим задачам (T6+) и пока не реализован. Доступны: inspect, segment, compose, whitebg, identity, rules.`,
+     [],
+   );
+ }
+ 
+
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit lib/pipeline/runner.ts
+Index: lib/pipeline/runner.ts
+===================================================================
+--- lib/pipeline/runner.ts
++++ lib/pipeline/runner.ts
+@@ -155,8 +155,20 @@
+               },
+         ];
+         break;
+       }
++      case "rules": {
++        const result = await checkRules(current.id);
++        await writeStepResult(current.id, step, result);
++        current.metrics.compliance = result.compliance;
++        current.metrics.score = result.score;
++        const ruleIds = new Set(result.checklist.map((c) => c.id));
++        current.checklist = [
++          ...current.checklist.filter((c) => !ruleIds.has(c.id)),
++          ...result.checklist,
++        ];
++        break;
++      }
+       default:
+         requireLaterStep(step);
+     }
+   } catch (err) {
+
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit lib/pipeline/runner.ts
+Index: lib/pipeline/runner.ts
+===================================================================
+--- lib/pipeline/runner.ts
++++ lib/pipeline/runner.ts
+@@ -185,9 +185,9 @@
+     throw err;
+   }
+   const creditsAfter = getCreditsTotal();
+   current.step = step;
+-  current.status = step === "whitebg" || step === "identity" ? "done" : "running";
++  current.status = step === "whitebg" || step === "identity" || step === "rules" ? "done" : "running";
+   current.metrics.ms += Date.now() - started;
+   current.metrics.credits += creditsAfter - creditsBefore;
+   current.error = null;
+   await saveJob(current);
+
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit package.json
+Index: package.json
+===================================================================
+--- package.json
++++ package.json
+@@ -8,9 +8,10 @@
+     "start": "next start",
+     "lint": "next lint",
+     "evals": "echo \"evals: not implemented yet\"",
+     "check:pipeline": "tsx scripts/check-pipeline.ts",
+-    "check:identity": "tsx scripts/check-identity.ts"
++    "check:identity": "tsx scripts/check-identity.ts",
++    "check:rules": "tsx scripts/check-rules.ts"
+   },
+   "dependencies": {
+     "class-variance-authority": "^0.7.1",
+     "clsx": "^2.1.1",
+
+[0m← [0mEdit lib/pipeline/runner.ts
+Index: lib/pipeline/runner.ts
+===================================================================
+--- lib/pipeline/runner.ts
++++ lib/pipeline/runner.ts
+@@ -20,9 +20,9 @@
+   type SegmentResult,
+   type WhitebgResult,
+ } from "./types";
+ 
+-// Оркестратор шагов T3+T4: inspect -> segment -> compose -> whitebg -> identity.
++// Оркестратор шагов T3+T4+T5: inspect -> segment -> compose -> whitebg -> identity -> rules.
+ // Идемпотентность: повторный вызов перезаписывает результат шага и поля джобы.
+ // Возобновление: шаг требует готовый результат предыдущего, иначе 409 со списком.
+ // Identity: при провале (< 0.90) перегенерирует главный кадр с усиленным
+ // промптом, максимум 2 ретрая. Compose детерминированный (вариант B), поэтому
+
+> build · muse-spark-1.3-contributor
+[0m✱ [0mGrep "any|@ts-ignore" [90min lib/pipeline/rules.ts · 0 matches[0m
+[0m✱ [0mGrep "any|@ts-ignore" [90min scripts/check-rules.ts · 0 matches[0m
+> build · muse-spark-1.3-contributor
+[0m$ [0mpnpm build
+$ next build
+   ▲ Next.js 15.5.28
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 1717ms
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/5) ...
+   Generating static pages (1/5) 
+   Generating static pages (2/5) 
+   Generating static pages (3/5) 
+ ✓ Generating static pages (5/5)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    9.46 kB         112 kB
+├ ○ /_not-found                            995 B         104 kB
+├ ƒ /api/health                            136 B         103 kB
+├ ƒ /api/stats                             136 B         103 kB
+├ ○ /batch                                 136 B         103 kB
+├ ƒ /r/[id]                                136 B         103 kB
+└ ƒ /studio/[id]                           136 B         103 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/301-7df51cbdeebdec87.js       46.3 kB
+  ├ chunks/5677bbc5-4640af22eaa803b8.js  54.2 kB
+  └ other shared chunks (total)          1.99 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+> build · muse-spark-1.3-contributor
+Сборка чистая. Прогоняю регрессию пайплайна.
+[0m$ [0mpnpm check:rules
+$ tsx scripts/check-rules.ts
+--- wb / хороший кадр ---
+  ok   aspect | пропорция 900×1200 (0.750, норма 0.75±0.02)
+  ok   min_size | 900×1200 px (минимум 700×900 px)
+  ok   bg_white | фон 100% белый (норма ≥ 99%)
+  ok   fill | заполнение 71% (норма 60–90%)
+  ok   not_cropped | товар целиком, края чистые
+  ok   single_object | в кадре один товар — mock: один товар в кадре
+  ok   no_text_on_main | текста, рамок и инфографики нет — mock: текста, рамок и инфографики нет
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог wb: compliance=1.000 score=100 пройдено=8/8
+PASS wb: хороший кадр проходит целиком
+--- ozon / хороший кадр ---
+  ok   aspect | пропорция 900×1200 (0.750, норма 0.75±0.02)
+  ok   min_size | 900×1200 px (минимум 200×200 px)
+  ok   bg_white | фон 100% белый (норма ≥ 99%)
+  ok   fill | заполнение 71% (норма 60–90%)
+  ok   not_cropped | товар целиком, края чистые
+  ok   single_object | в кадре один товар — mock: один товар в кадре
+  ok   no_text_on_main | текста, рамок и инфографики нет — mock: текста, рамок и инфографики нет
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог ozon: compliance=1.000 score=100 пройдено=8/8
+PASS ozon: хороший кадр проходит целиком
+--- amazon / хороший кадр ---
+  FAIL aspect | пропорция 900×1200 (0.750, норма 1±0.02)
+  FAIL min_size | 900×1200 px (минимум 1000×1000 px)
+  ok   bg_white | фон 100% белый (норма ≥ 99%)
+  FAIL fill | заполнение 71% (норма 85–98%)
+  ok   not_cropped | товар целиком, края чистые
+  ok   no_text_on_main | текста, рамок и инфографики нет — mock: текста, рамок и инфографики нет
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог amazon: compliance=0.550 score=55 пройдено=4/7
+PASS amazon: хороший 3:4 кадр НЕ проходит целиком
+PASS amazon: пункт «aspect» провален (ожидаемо)
+PASS amazon: пункт «min_size» провален (ожидаемо)
+PASS amazon: пункт «fill» провален (ожидаемо)
+--- wb / плохой кадр ---
+  FAIL aspect | пропорция 800×1200 (0.667, норма 0.75±0.02) | fix: Кадрируйте в 3:4, без подгонки растяжением | why: соотношение сторон 0.667 вне допуска 0.75±0.02: кадр не той пропорции
+  ok   min_size | 800×1200 px (минимум 700×900 px)
+  FAIL bg_white | фон 93% белый (норма ≥ 99%) | fix: Включите замену фона или переснимите на белом листе | why: белых пикселей 93% вне маски, нужно ≥ 99%: фон неоднородный, есть тени или серость
+  FAIL fill | заполнение 45% (норма 60–90%) | fix: Обрежьте лишнее поле вокруг товара | why: товар мелкий (45% < 60%): обрежьте лишнее поле вокруг
+  FAIL not_cropped | товар касается края: снизу | fix: Отойдите на шаг, чтобы товар влез полностью с отступом | why: маска упирается в край (снизу) — товар обрезан, переснимите с отступом
+  ok   single_object | в кадре один товар — mock: один товар в кадре
+  FAIL no_text_on_main | найдено: mock: плашка с текстом сверху кадра (зона 5%, 2%, 90%×12%) | fix: На первом фото не должно быть текста и плашек | why: mock: плашка с текстом сверху кадра
+  ok   no_watermark | водяных знаков нет — mock: водяных знаков нет
+итог wb/bad: compliance=0.250 score=25
+PASS wb: плохой кадр не проходит
+PASS wb: обрезка снизу поймана пунктом not_cropped
+PASS wb: текст пойман пунктом no_text_on_main
+--- test (временный rules/test.json) ---
+итог test: compliance=1.000 score=100
+PASS test.json: новая площадка работает без правки кода
+failed=0
+> build · muse-spark-1.3-contributor
+[0m$ [0mpnpm check:pipeline
+$ tsx scripts/check-pipeline.ts
+[model] name=sam-3.1 ms=428 credits=1 status=mock
+PASS synthetic-1.jpg | 900x1200 | fill=0.633 | bg_white=1.0000 | edge=ok | seg=sam-boxes | src=900x1200 sharp=15.4 | ms=664 | credits=0
+[model] name=sam-3.1 ms=442 credits=1 status=mock
+PASS synthetic-2.jpg | 900x1200 | fill=0.633 | bg_white=1.0000 | edge=ok | seg=sam-boxes | src=900x1200 sharp=22.2 | ms=628 | credits=0
+[model] name=sam-3.1 ms=513 credits=1 status=mock
+PASS synthetic-3.jpg | 900x1200 | fill=0.633 | bg_white=1.0000 | edge=ok | seg=sam-boxes | src=900x1200 sharp=23.1 | ms=700 | credits=0
+files=3 failed=0
+> build · muse-spark-1.3-contributor
+[0m$ [0mpnpm check:identity
+$ tsx scripts/check-identity.ts
+[model] name=sam-3.1 ms=455 credits=1 status=mock
+[model] name=muse-glimmer ms=570 credits=0 status=mock
+[model] name=muse-glimmer ms=573 credits=0 status=mock
+[model] name=muse-glimmer ms=774 credits=0 status=mock
+same product: identity=0.9441 PASS | phash=0.844 (bits 10) | hsv=1.000 (corr 1.000) | ssim=0.996 | glimmer=same 3/3 | contrib ph=0.295 hsv=0.250 ssim=0.249 gl=0.150
+[model] name=sam-3.1 ms=487 credits=1 status=mock
+[model] name=muse-glimmer ms=362 credits=0 status=mock
+[model] name=muse-glimmer ms=387 credits=0 status=mock
+[model] name=muse-glimmer ms=454 credits=0 status=mock
+substituted: identity=0.5425 FAIL(expected) | phash=0.531 (bits 30) | hsv=0.069 (corr 0.069) | ssim=0.757 | glimmer=same 3/3
+[model] name=sam-3.1 ms=733 credits=1 status=mock
+retry-loop: identity=0.7941 passed=false retries=2 attempts(identity)=3 attempts(compose)=3 checklist={"id":"identity","label":"Товар тот же после обработки","ok":false,"measured":"identity 0.794 (порог 0.90)","weight":0,"fix":"Товар не прошёл identity gate: переснимите или примите другой кадр.","reason":"pHash 0.844 (биты 10), HSV 1.000, SSIM 0.996, glimmer different 0/3. Ретраев: 2."}
+files=3 failed=0
+> build · muse-spark-1.3-contributor
+Регрессии нет. Проверяю шаг `rules` в runner end-to-end.
+[0m$ [0mpnpm tsx -e "process.env.MOCK='1'; (async () => { const { createJob } = await import('./lib/pipeline/state'); const { runStep } = await import('./lib/pipeline/runner'); let job = await createJob('wb', 'fixtures/photos/synthetic-1.jpg'); for (const s of ['inspect','segment','compose','whitebg','identity','rules']) { job = await runStep(job, s); } console.log('status=' + job.status + ' compliance=' + job.metrics.compliance.toFixed(3) + ' score=' + job.metrics.score); console.log(JSON.stringify(job.checklist.map((c) => ({ id: c.id, ok: c.ok })), null, 0)); })().catch((e) => { console.error(e); process.exit(1); })"
+[model] name=sam-3.1 ms=573 credits=1 status=mock
+[model] name=muse-glimmer ms=323 credits=0 status=mock
+[model] name=muse-glimmer ms=332 credits=0 status=mock
+[model] name=muse-glimmer ms=554 credits=0 status=mock
+status=done compliance=1.000 score=100
+[{"id":"identity","ok":true},{"id":"aspect","ok":true},{"id":"min_size","ok":true},{"id":"bg_white","ok":true},{"id":"fill","ok":true},{"id":"not_cropped","ok":true},{"id":"single_object","ok":true},{"id":"no_text_on_main","ok":true},{"id":"no_watermark","ok":true}]
+> build · muse-spark-1.3-contributor
+End-to-end через runner: `compliance=1.000 score=100`, identity на месте. Финализирую: DECISIONS, HANDOFF, коммит.
+[0m$ [0mgit status --short | head -20; git log --oneline -3
+head : ��� "head" �� �ᯮ����� ��� ��� ���������, �㭪樨, 䠩�� �業��� ��� �믮��塞�� �ணࠬ��. �஢���� �ࠢ��
+쭮��� ����ᠭ�� �����, � ⠪�� ����稥 � �ࠢ��쭮��� ���, ��᫥ 祣� ������ ������.
+��ப�:1 ����:22
++ git status --short | head -20; git log --oneline -3
++                      ~~~~
+    + CategoryInfo          : ObjectNotFound: (head:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+40ec33e T4: identity gate (phash/hsv/ssim), formula 0.90, retry loop x2, check:identity
+a183c11 feat(T3): inspect segment compose whitebg pipeline plus check
+ce593ae feat(models): T2 Meta client with retries, wrappers and mock provider
+> build · muse-spark-1.3-contributor
+[0m$ [0mgit status --short
+M lib/pipeline/rules.ts
+ M lib/pipeline/runner.ts
+ M package.json
+?? .opencode/chain567.bat
+?? .opencode/logs/
+?? scripts/check-rules.ts
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit docs/DECISIONS.md
+Index: docs/DECISIONS.md
+===================================================================
+--- docs/DECISIONS.md
++++ docs/DECISIONS.md
+@@ -28,4 +28,5 @@
+ 2026-10-30 — T4: HSV H16/S4/V4=256 бинов + Пирсон, в формуле max(0, corr) — отрицательная корреляция разных товаров даёт 0, а не 0.5 как (corr+1)/2.
+ 2026-10-30 — T4: SSIM настоящий ((2mxmy+C1)(2cov+C2)/...), окно 8x8 без перекрытия на 256, ssimOnMask только окна с покрытием маски >50% — баланс скорости и честности формулы.
+ 2026-10-30 — T4: identity сравнивает кропы товара по bbox масок с инсетом 3%, а не целые кадры — иначе белый фон после whitebg и rim от эрозии роняли same с 0.944 до 0.887.
+ 2026-10-30 — T4: ретрай структурный (compose детерминированный, вариант B, самозалечивается), promptId фиксирует compose-v2-enhanced; persistent-провал для теста петли — IDENTITY_FORCE_FAIL=1; mock-glimmer всегда same=true 3/3, большинство 2/3 — честно для README.
++2026-10-30 — T5: пороги только из rules/*.json, в коде лишь исполнители 8 типов; vision (no_text_on_main/no_watermark/single_object) — muse-spark строгим JSON {ok,confident,bbox,reason}, без уверенности — честный провал (ok=false); mock — детерминированный pass без вызова модели.
+
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit docs/HANDOFF.md
+Index: docs/HANDOFF.md
+===================================================================
+--- docs/HANDOFF.md
++++ docs/HANDOFF.md
+@@ -2,9 +2,9 @@
+ 
+ Обновляется агентом в конце КАЖДОЙ задачи. Следующий чат начинается с чтения этого файла.
+ 
+ ## Текущее состояние
+-T4 выполнен 30.10.2026. Identity gate готов: `pnpm check:identity` — same 0.9441 (≥0.90 PASS), substituted 0.5425 (<0.90), retry-loop 2 ретрая + красный checklist; `pnpm check:pipeline` — 3/3 PASS без изменений; `pnpm build` — Compiled successfully. Следующая задача — T5 (движок регламента rules + checklist + fix hints).
++T5 выполнен 30.10.2026. Движок регламента готов: `pnpm check:rules` — wb/ozon PASS 100, amazon FAIL 55 (aspect/min_size/fill, ожидаемо), плохой кадр ловится (not_cropped + no_text_on_main), временный rules/test.json работает без правки кода; `pnpm build` — Compiled successfully; `pnpm check:pipeline` и `pnpm check:identity` — без регрессий. Следующая задача — T6 (текст карточки и экспорт, MASTER.md разделы 5 и 9).
+ 
+ ## Что готово
+ - T1 (лендинг), T2 (клиент моделей + MOCK) без изменений: собираются, `pnpm tsx scripts/check-models.ts` по-прежнему ок.
+ - `lib/pipeline/types.ts`: +zod-схемы `inspectMetricsSchema`, `bboxSchema`/`samBoxSchema`, `segmentResultSchema` (method: sam-mask|sam-boxes|background-removal), `composeResultSchema` (modelUsed), `whitebgResultSchema` (bgWhite, changedInside, edgePreserved, rolledBack). Старые `JobState`/`Metrics`/`ChecklistItem` не тронуты.
+
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit docs/HANDOFF.md
+Index: docs/HANDOFF.md
+===================================================================
+--- docs/HANDOFF.md
++++ docs/HANDOFF.md
+@@ -21,8 +21,10 @@
+ - Проверка: `pnpm check:pipeline` — 3/3 PASS; `pnpm build` — Compiled successfully, типы ок; grep по `any|@ts-ignore` в `lib/` — пусто.
+ - T4: `lib/utils/phash.ts` (DCT 32x32→8x8, медиана по 63 AC, bigint-hex, hamming 0..64), `lib/utils/hsv.ts` (H16/S4/V4=256, Пирсон), `lib/utils/ssim.ts` (настоящий SSIM, окно 8x8 на 256, `ssimOnMask` по покрытию >50%).
+ - T4: `lib/pipeline/identity.ts` (формула 0.35/0.25/0.25/0.15, порог 0.90; кропы по bbox с инсетом 3%; glimmer 3 голоса; `IDENTITY_FORCE_FAIL=1`; `identityResultSchema`).
+ - T4: петля в runner (identity<0.90 → до 2 ретраев `compose-v2-enhanced`, `attempts.identity`, `metrics.retries`, красный checklist); `scripts/check-identity.ts` + `pnpm check:identity` (same 0.9441 PASS, substituted 0.5425 FAIL-ожидаемо, loop retries=2).
++- T5: `lib/pipeline/rules.ts` (пороги только из rules/*.json; кодовые типы pixels_white/aspect/min_size/fill/not_cropped; vision-типы no_text_on_main/no_watermark/single_object через `askSpark` строгим JSON {ok,confident,bbox,reason}, без уверенности — честный провал, mock — детерминированный pass; `evaluateMarketplace`/`summarize`/`checkMarketplace`/`judgeAllVision`/`checkRules(jobId)`; compliance = веса пройденных/все, score = round(*100)).
++- T5: шаг `rules` в runner (замеры из compose+whitebg+maskTouchesBorders, vision по финальному кадру, пишет metrics.compliance/score + checklist, статус done); `scripts/check-rules.ts` + `pnpm check:rules` (таблица пункт/замер/ок, кейс «Ozon PASS / Amazon FAIL», временный rules/test.json без правки кода, exit 1 при расхождении).
+ 
+ ## Что дальше
+ T5: движок регламента, чек-лист, fix hints (MASTER.md раздел 7; скиллы to-spec, test-driven-development). Задел: identity пишет пункт `identity` (weight 0) и `metrics.identity/retries`; финалы `<src>.main.white.png` + маски — под `pixels_white`/`fill`/`not_cropped`.
+ 
+
+> build · muse-spark-1.3-contributor
+[0m← [0mEdit docs/HANDOFF.md
+Index: docs/HANDOFF.md
+===================================================================
+--- docs/HANDOFF.md
++++ docs/HANDOFF.md
+@@ -25,9 +25,9 @@
+ - T5: `lib/pipeline/rules.ts` (пороги только из rules/*.json; кодовые типы pixels_white/aspect/min_size/fill/not_cropped; vision-типы no_text_on_main/no_watermark/single_object через `askSpark` строгим JSON {ok,confident,bbox,reason}, без уверенности — честный провал, mock — детерминированный pass; `evaluateMarketplace`/`summarize`/`checkMarketplace`/`judgeAllVision`/`checkRules(jobId)`; compliance = веса пройденных/все, score = round(*100)).
+ - T5: шаг `rules` в runner (замеры из compose+whitebg+maskTouchesBorders, vision по финальному кадру, пишет metrics.compliance/score + checklist, статус done); `scripts/check-rules.ts` + `pnpm check:rules` (таблица пункт/замер/ок, кейс «Ozon PASS / Amazon FAIL», временный rules/test.json без правки кода, exit 1 при расхождении).
+ 
+ ## Что дальше
+-T5: движок регламента, чек-лист, fix hints (MASTER.md раздел 7; скиллы to-spec, test-driven-development). Задел: identity пишет пункт `identity` (weight 0) и `metrics.identity/retries`; финалы `<src>.main.white.png` + маски — под `pixels_white`/`fill`/`not_cropped`.
++T6: текст карточки и экспорт (MASTER.md разделы 5 и 9; скилл frontend-design для блока экспорта). Задел: rules пишет пункты с id/label/measured/weight/fix/reason и metrics.compliance/score — checklist и fix-hints в UI берут их как есть; финалы `<src>.main.white.png` + маски лежат в assets.
+ 
+ ## Открытые вопросы
+ - Живой ответ sam-3.1 (special-token маски) не виден без ключа — ветка `sam-mask` написана вслепую по DECISIONS T2 и отработает только при совпадении формата; первый живой прогон делать осторожно, смотреть `method` в отчёте.
+ - Живой `muse-glimmer` через Model API, скорее всего, вернёт 404 (self-host) — в T4 judge идёт на тот же base URL, в mock всегда same=true 3/3; честная строка для README — в DECISIONS.
+
+> build · muse-spark-1.3-contributor
+[0m$ [0mgit add lib/pipeline/rules.ts lib/pipeline/runner.ts package.json scripts/check-rules.ts docs/DECISIONS.md docs/HANDOFF.md; git commit -m "feat(T5): rules engine from rules JSON plus check:rules"
+warning: in the working copy of 'docs/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/HANDOFF.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/pipeline/rules.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/pipeline/runner.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/check-rules.ts', LF will be replaced by CRLF the next time Git touches it
+[master 88c923f] feat(T5): rules engine from rules JSON plus check:rules
+ 6 files changed, 612 insertions(+), 11 deletions(-)
+ create mode 100644 scripts/check-rules.ts
+> build · muse-spark-1.3-contributor
+Изменил: `lib/pipeline/rules.ts` (движок: пороги только из JSON, 5 кодовых типов + 3 vision через spark со строгим JSON, без уверенности — честный провал), `lib/pipeline/runner.ts` (шаг `rules`), `scripts/check-rules.ts` (новый стенд), `package.json` (`check:rules`), `docs/DECISIONS.md`, `docs/HANDOFF.md`.
+
+Проверил:
+- `pnpm tsx scripts/check-rules.ts` → wb/ozon 100 PASS, amazon 55 FAIL (aspect/min_size/fill, ожидаемо), плохой кадр ловится, временный `rules/test.json` работает без правки кода, failed=0.
+- `pnpm build` → Compiled successfully, типовых ошибок нет.
+- `pnpm check:pipeline` → 3/3 PASS; `pnpm check:identity` → same 0.9441 PASS, substituted 0.5425 FAIL, loop retries=2 — без регрессий.
+- runner end-to-end inspect→rules на synthetic-1 → done, compliance=1.000, score=100.
+- grep `any|@ts-ignore` в новых файлах → пусто.
+- `git commit 88c923f` — без пуша.
+
+Осталось: T6 (текст карточки и экспорт); `.opencode/chain567.bat` и `.opencode/logs/` не трогал — чужой мусор, не коммитил.
