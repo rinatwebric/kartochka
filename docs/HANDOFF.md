@@ -3,23 +3,25 @@
 Обновляется агентом в конце КАЖДОЙ задачи. Следующий чат начинается с чтения этого файла.
 
 ## Текущее состояние
-T1 выполнен 30.10.2026. Лендинг собирается (`pnpm build` — Compiled successfully, static 6 routes), `pnpm dev` отдаёт `/` HTTP 200 со всеми блоками. Следующая задача — T2 (клиент моделей + MOCK).
+T2 выполнен 30.10.2026. Клиент моделей + MOCK готов: `pnpm build` — Compiled successfully, `pnpm tsx scripts/check-models.ts` — все четыре обёртки отвечают в mock-режиме с логом `[model]`. Следующая задача — T3 (inspect + segment + compose + whitebg).
 
 ## Что готово
-- Дизайн-система: `app/globals.css` — токены Tailwind 4 (`@theme`): graphite `#0C0E12`/`#12151C`/`#171C26`/`#232B3A`, paper `#F2F4F7`, muted `#9AA3B2`, один акцент amber `#FFC531` (+soft/ink), радиусы 14/10/8, тени lift/flat, `color-scheme: dark`, focus-обводка акцентом, reduced-motion.
-- Шрифт: `app/layout.tsx` — Manrope через `next/font/google` (subsets latin+cyrillic, variable `--font-sans`), `lang="ru"`, `class="dark"`, метаданные RU (title + description про WB/Ozon/Amazon и «9 из 10»).
-- Лендинг `app/page.tsx` (client): `Hero` + секция `#upload` (dropzone + picker + disabled «Собрать карточку») + `HowItWorks` + инлайн-блок «Почему площадка не примет фото само по себе» (4 карточки: фон/пропорция/обрезка/текст).
-- Компоненты: `components/landing/hero.tsx` (hero + гигантское число 9/10), `components/landing/how-it-works.tsx` (3 шага, нумерация уместна — последовательность), `components/upload/dropzone.tsx` (DragEvent+input, accept jpg/png/webp, превью первого файла через objectURL, счётчик файлов, суммарный и первый размер, «Очистить»), `components/upload/marketplace-picker.tsx` (`Marketplace = "wb"|"ozon"|"amazon"`, radiogroup, иконки ShoppingBag/Package/Globe, `value/onChange`, состояние в `page.tsx` через useState).
-- Иконки только lucide-react (ShieldCheck, Upload, PackageCheck, ArrowRight, Hammer, ImageOff, Ruler, Crop, Type, FileImage, Trash2...). Фикс по ходу: `ScanCheck` нет в lucide-react 0.545.0 — заменён на `ShieldCheck`; убран круговой импорт типа `Marketplace`. Никаких стоковых картинок и эмодзи, переходы только `duration-200`.
-- `docs/DECISIONS.md`: +1 строка про визуал «тёмный чертёж + один янтарь» (Manrope, graphite+amber, число-герой).
-- Проверка: `pnpm build` — Compiled successfully, 6 роутов, First Load `/` 112 kB. `pnpm dev` + `curl --noproxy localhost:3000` — HTTP 200, 28 КБ, в разметке найдены все строки (hero, 9/10, WB/Ozon/Amazon, «Собрать карточку», оба блока). Интерактив кодом: dropzone обрабатывает onDrop/onChange с фильтром MIME, picker переключает `marketplace` через useState.
-- Что видно (скриншотера в окружении нет, `docs/screens/landing.png` не создан — по T1 описан текстом): тёмный фон, бейдж «Валидатор регламента, а не фотостудия», заголовок «Карточку, которую площадка примет с первого раза», справа крупное «9/10», кнопки «Проверить своё фото» + «Посмотреть готовый пример», дропзона dashed, три карточки площадок (WB выбран, янтарная рамка), неактивная кнопка, три шага, четыре причины отказа.
+- T1 (лендинг) без изменений: собирается, `/` отдаёт 200.
+- `lib/env.ts`: zod-валидация `MODEL_API_KEY` (optional), `META_BASE_URL` (default `https://api.meta.ai/v1`), `MOCK` (`"0"|"1"`, default `"1"`); без ключа MOCK принудительно `"1"`; экспорт `env`, `getEnv`, `isMockEnv`, `isMock`. Пустые строки env считаются отсутствующими.
+- `lib/models/meta.ts`: единый клиент `callMeta` — POST JSON, AbortController-таймаут 60 с, 2 ретрая с экспоненциальной паузой (500·2^n мс) только на 429/5xx и сетевые ошибки, на 4xx бросает сразу; лог одной строкой `[model] name=... ms=... credits=... status=...`; счётчик кредитов (`MODEL_CREDIT_COST`: sam 1, image 5, spark 1, contributor 0.5, glimmer 0; `getCreditsTotal`/`resetCreditsTotal`); типизированная `ModelError` с человеческим текстом RU; `shouldRetry` экспортирован для тестов.
+- `lib/models/types.ts`: zod-схемы `textVerdictSchema`, `imageResultSchema` (b64 или URL, refine требует хотя бы одно), `samResultSchema` (raw + boxes + mask), `responsesApiSchema`, `imagesApiSchema` — поля сверены с https://dev.meta.ai/docs.
+- Обёртки: `sam.ts` (`segmentWithSam(image, prompt)`, модель `sam-3.1` через `/v1/responses`), `image.ts` (`generateImage({prompt,image?,size?})`, без image — `/images/generations`, с image — `/images/edits` JSON-форма `images:[{image_url}]`), `spark.ts` (`askSpark(prompt, image?)`, `muse-spark-1.3`), `glimmer.ts` (`judgeIdentity(prompt, image?)`, `muse-glimmer`, просит строгий JSON и валидирует). В MOCK все делегируют в `lib/mock/provider.ts`.
+- `lib/mock/`: детерминированные фикстуры (1x1 белый PNG base64, фиксированные текст и вердикт same=true), задержка 300–800 мс, ошибок не бросает; mock-вызовы пишут тот же однострочный лог со `status=mock` и оценочными кредитами.
+- `scripts/check-models.ts`: форсирует MOCK до импорта env (динамические импорты), прогоняет все четыре обёртки, печатает результаты и `credits total`. Запуск: `pnpm tsx scripts/check-models.ts`.
+- `pnpm-workspace.yaml`: `allowBuilds: esbuild, sharp` (pnpm 12 требует `approve-builds`; stale-поле `pnpm.onlyBuiltDependencies` в package.json оставлено нетронутым — только ворнинг).
+- `docs/DECISIONS.md`: +4 строки (tsx; сверка полей с документацией; Glimmer self-host; SAM special-token вывод).
+- Проверка: `pnpm build` — Compiled successfully, типы ок, 7 роутов; `pnpm tsx scripts/check-models.ts` — sam/image/spark/glimmer ответили, в логе ms и credits; grep по `any|@ts-ignore` в `lib/` — пусто.
 
 ## Что дальше
-T2: клиент моделей + MOCK (раздел 6 MASTER.md; сначала открыть https://dev.meta.ai/docs и сверить поля; скиллы karpathy-guidelines, test-driven-development). Ссылка `/demo` в hero пока ведёт в 404 — появится в T7. shadcn/ui в T1 не инициализировался (для лендинга хватило Tailwind + токенов, лишний вес не тянули).
+T3: inspect + segment + compose + whitebg (MASTER.md разделы 5, 7, 8; скилл test-driven-development). Декод SAM-маски из special-token текста в пиксели — делать в T3 (см. DECISIONS про docs/sam/client-libraries). Живой прогон обёрток не проверялся (нет ключа) — первый живой вызов делать осторожно, с MOCK=0 и валидным ключом.
 
 ## Открытые вопросы
-- Точные имена полей sam-3.1 и images/edits — сверить по документации в T2.
-- Цифры в rules/*.json не подтверждены официальными страницами (verified: false).
+- Живой ответ sam-3.1 (формат special-token боксов/масок) не виден без ключа — парсинг `boxes` из `raw` пока не реализован, `SamResult.boxes` заполняется только в mock.
+- Живой вызов `muse-glimmer` через Model API, скорее всего, вернёт 404 (self-host модель) — нужен локальный рантайм или замена судьи; решение за T4.
 - `pnpm lint` (next lint) не прогонялся; `pnpm build` проходит без ошибок типов.
-- На что смотреть: дропзона пуста до выбора файлов (превью/счётчик появляются после); `/api/health` и `/api/stats` не тронуты.
+- На что смотреть: mock-фикстура картинки — 1x1 PNG, для визуальной проверки непригодна, только для plumbing; `credits total=0` в mock — деньги не тратятся, в лог пишутся оценочные кредиты.

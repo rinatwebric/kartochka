@@ -13,4 +13,7 @@
           поддерживать вручную.
 2026-10-30 — tsconfig target ES2017 добавлен самим Next.js при первом build — требование Next для top-level await — без последствий, оставляем.
 2026-10-30 — pnpm approve-builds sharp — pnpm 12 блокирует postinstall-скрипты, sharp без нативного биндинга не работает — approve один раз, выбор зафиксирован в pnpm-workspace.yaml.
-2026-10-30 — T1 визуал «тёмный чертёж + один янтарь»: Manrope с кириллицей, graphite #0C0E12 + акцент #FFC531, число 9/10 как герой — отстройка от «фотостудий», акцент на проверке числом — риск: янтарь приестся, лечится токеном --color-accent.
+2026-10-30 — T2: tsx в devDependencies для scripts/check-models.ts — скрипту нужен раннер TS без тестового фреймворка (их запрещает стек) — +1 зависимость только для dev.
+2026-10-30 — T2 сверка с https://dev.meta.ai/docs: base URL https://api.meta.ai/v1 и Bearer MODEL_API_KEY совпадают с MASTER.md; текстовые модели идут через POST /v1/responses {model, input}, картинки — через OpenAI-совместимые POST /v1/images/generations|edits (ответ data[0].b64_json|url) — поля взяты из документации, не выдуманы.
+2026-10-30 — T2 расхождение с MASTER.md: muse-glimmer по документации — open-weight для self-host (vLLM/llama.cpp), через Model API не отдаётся — обёртка judgeIdentity шлёт тот же /v1/responses с model "muse-glimmer", но рабочий режим до локального рантайма только MOCK — в README честно указать, что судья локальный.
+2026-10-30 — T2 расхождение с MASTER.md: sam-3.1 отдаёт не PNG-маску, а special-token текст с боксами и масками через Responses API — SamResult хранит raw + boxes, декод маски в пиксели отложен до T3 (там sharp и клиентские парсеры из docs/sam/client-libraries).
