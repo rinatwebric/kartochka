@@ -16,12 +16,32 @@ import { ssimBetweenBuffers } from "../utils/ssim";
 
 export const IDENTITY_THRESHOLD = 0.9;
 export const IDENTITY_WEIGHTS = { phash: 0.35, hsv: 0.25, ssim: 0.25, glimmer: 0.15 } as const;
-// Glimmer — open-weight для self-host, через Model API отвечает 404
-// (https://dev.meta.ai/docs, проверено живьём 30.10.2026). При abstain три
-// оставшихся сигнала перенормируются на 1/(1-0.15) — относительные веса и
-// порог 0.90 не меняются, вклад glimmer = 0. Расхождение с MASTER.md §8
-// зафиксировано в docs/DECISIONS.md: правда у документации.
-export const IDENTITY_ABSTAIN_SCALE = 1 / (1 - IDENTITY_WEIGHTS.glimmer);
+// Чистая математика взносов identity: glimmerSame=true/false — веса MASTER.md §8,
+// null — abstain (glimmer open-weight для self-host, через Model API отвечает 404 —
+// проверено живьём 30.10.2026, см. docs/DECISIONS.md): три кодовых сигнала делятся
+// на (1-0.15), относительные веса и порог 0.90 не меняются, вклад glimmer = 0.
+// Выделена ради юнит-проверки без моделей (см. scripts/check-units.ts).
+export function applyIdentityContributions(
+  phashSimilarityScore: number,
+  hsvScore: number,
+  ssim: number,
+  glimmerSame: boolean | null,
+): IdentityContributions {
+  if (glimmerSame === null) {
+    return {
+      phash: (IDENTITY_WEIGHTS.phash * phashSimilarityScore) / (1 - IDENTITY_WEIGHTS.glimmer),
+      hsv: (IDENTITY_WEIGHTS.hsv * hsvScore) / (1 - IDENTITY_WEIGHTS.glimmer),
+      ssim: (IDENTITY_WEIGHTS.ssim * ssim) / (1 - IDENTITY_WEIGHTS.glimmer),
+      glimmer: 0,
+    };
+  }
+  return {
+    phash: IDENTITY_WEIGHTS.phash * phashSimilarityScore,
+    hsv: IDENTITY_WEIGHTS.hsv * hsvScore,
+    ssim: IDENTITY_WEIGHTS.ssim * ssim,
+    glimmer: IDENTITY_WEIGHTS.glimmer * (glimmerSame ? 1 : 0),
+  };
+}
 export const IDENTITY_PROMPT_ID = "identity-v1";
 export const IDENTITY_COMPOSE_ENHANCED_ID = "compose-v2-enhanced";
 export const IDENTITY_MAX_RETRIES = 2;
@@ -240,13 +260,12 @@ export async function computeIdentity(
     glimmerImage,
   );
   const abstained = glimmer.abstained === true;
-  const scale = abstained ? IDENTITY_ABSTAIN_SCALE : 1;
-  const contributions: IdentityContributions = {
-    phash: IDENTITY_WEIGHTS.phash * phashSimilarityScore * scale,
-    hsv: IDENTITY_WEIGHTS.hsv * hsvScore * scale,
-    ssim: IDENTITY_WEIGHTS.ssim * ssim * scale,
-    glimmer: abstained ? 0 : IDENTITY_WEIGHTS.glimmer * (glimmer.same ? 1 : 0),
-  };
+  const contributions: IdentityContributions = applyIdentityContributions(
+    phashSimilarityScore,
+    hsvScore,
+    ssim,
+    abstained ? null : glimmer.same,
+  );
   const identity = Math.max(
     0,
     Math.min(1, contributions.phash + contributions.hsv + contributions.ssim + contributions.glimmer),

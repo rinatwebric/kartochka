@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "evals": "tsx evals/run.ts",
+    "check:units": "tsx scripts/check-units.ts",
     "check:pipeline": "tsx scripts/check-pipeline.ts",
     "check:identity": "tsx scripts/check-identity.ts",
     "check:rules": "tsx scripts/check-rules.ts",
