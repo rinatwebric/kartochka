@@ -1,0 +1,116 @@
+{
+  "name": "Wildberries",
+  "marketplace": "wb",
+  "source_url": "https://seller.wildberries.ru/ (требования к фото карточки товара)",
+  "verified": false,
+  "updated": "2026-10-30",
+  "aspect": {
+    "target": [
+      900,
+      1200
+    ],
+    "ratio": 0.75,
+    "tolerance": 0.02,
+    "min": [
+      700,
+      900
+    ]
+  },
+  "limits": {
+    "title_max": 60,
+    "description_max": 5000,
+    "images_max": 30,
+    "file_max_mb": 10,
+    "formats": [
+      "jpg",
+      "jpeg",
+      "png",
+      "webp"
+    ]
+  },
+  "checks": [
+    {
+      "id": "aspect",
+      "label": "Пропорция 3:4",
+      "type": "aspect",
+      "weight": 15,
+      "severity": "fail",
+      "params": {
+        "ratio": 0.75,
+        "tolerance": 0.02
+      },
+      "fix": "Кадрируйте в 3:4, без подгонки растяжением"
+    },
+    {
+      "id": "min_size",
+      "label": "Разрешение не меньше 700×900",
+      "type": "min_size",
+      "weight": 10,
+      "severity": "fail",
+      "params": {
+        "min": [
+          700,
+          900
+        ]
+      },
+      "fix": "Переснимите или загрузите исходник большего размера"
+    },
+    {
+      "id": "bg_white",
+      "label": "Белый фон",
+      "type": "pixels_white",
+      "weight": 25,
+      "severity": "fail",
+      "params": {
+        "threshold": 0.99,
+        "min_channel": 250,
+        "exclude_mask": true
+      },
+      "fix": "Включите замену фона или переснимите на белом листе"
+    },
+    {
+      "id": "fill",
+      "label": "Товар занимает 60-90% кадра",
+      "type": "fill",
+      "weight": 10,
+      "severity": "fail",
+      "params": {
+        "min": 0.6,
+        "max": 0.9
+      },
+      "fix": "Обрежьте лишнее поле вокруг товара"
+    },
+    {
+      "id": "not_cropped",
+      "label": "Товар целиком, не обрезан",
+      "type": "not_cropped",
+      "weight": 15,
+      "severity": "fail",
+      "fix": "Отойдите на шаг, чтобы товар влез полностью с отступом"
+    },
+    {
+      "id": "single_object",
+      "label": "В кадре один товар",
+      "type": "single_object",
+      "weight": 10,
+      "severity": "fail",
+      "fix": "Уберите второй товар из кадра"
+    },
+    {
+      "id": "no_text_on_main",
+      "label": "Нет надписей, инфографики, рамок",
+      "type": "no_text_on_main",
+      "weight": 10,
+      "severity": "fail",
+      "fix": "На первом фото не должно быть текста и плашек"
+    },
+    {
+      "id": "no_watermark",
+      "label": "Нет водяных знаков и чужих логотипов",
+      "type": "no_watermark",
+      "weight": 5,
+      "severity": "fail",
+      "fix": "Уберите вотермарки и логотипы других брендов"
+    }
+  ]
+}

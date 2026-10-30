@@ -1,0 +1,115 @@
+{
+  "name": "Ozon",
+  "marketplace": "ozon",
+  "source_url": "https://seller-edu.ozon.ru/ (требования к изображениям)",
+  "verified": false,
+  "updated": "2026-10-30",
+  "aspect": {
+    "target": [
+      1200,
+      1600
+    ],
+    "ratio": 0.75,
+    "tolerance": 0.02,
+    "min": [
+      200,
+      200
+    ]
+  },
+  "limits": {
+    "title_max": 200,
+    "description_max": 6000,
+    "images_max": 15,
+    "file_max_mb": 10,
+    "formats": [
+      "jpg",
+      "jpeg",
+      "png"
+    ]
+  },
+  "checks": [
+    {
+      "id": "aspect",
+      "label": "Пропорция 3:4",
+      "type": "aspect",
+      "weight": 15,
+      "severity": "fail",
+      "params": {
+        "ratio": 0.75,
+        "tolerance": 0.02
+      },
+      "fix": "Кадр 3:4, вертикальный"
+    },
+    {
+      "id": "min_size",
+      "label": "Разрешение не меньше 200×200",
+      "type": "min_size",
+      "weight": 5,
+      "severity": "fail",
+      "params": {
+        "min": [
+          200,
+          200
+        ]
+      },
+      "fix": "Загрузите фото крупнее"
+    },
+    {
+      "id": "bg_white",
+      "label": "Светлый или белый фон",
+      "type": "pixels_white",
+      "weight": 25,
+      "severity": "fail",
+      "params": {
+        "threshold": 0.99,
+        "min_channel": 250,
+        "exclude_mask": true
+      },
+      "fix": "Замените фон на белый"
+    },
+    {
+      "id": "fill",
+      "label": "Товар занимает 60-90% кадра",
+      "type": "fill",
+      "weight": 15,
+      "severity": "fail",
+      "params": {
+        "min": 0.6,
+        "max": 0.9
+      },
+      "fix": "Подрежьте поле вокруг товара"
+    },
+    {
+      "id": "not_cropped",
+      "label": "Товар целиком, не обрезан",
+      "type": "not_cropped",
+      "weight": 15,
+      "severity": "fail",
+      "fix": "Переснимите с отступом от краёв"
+    },
+    {
+      "id": "single_object",
+      "label": "В кадре один товар",
+      "type": "single_object",
+      "weight": 10,
+      "severity": "fail",
+      "fix": "Один товар на главном фото"
+    },
+    {
+      "id": "no_text_on_main",
+      "label": "Нет надписей и рамок на главном фото",
+      "type": "no_text_on_main",
+      "weight": 10,
+      "severity": "fail",
+      "fix": "Уберите инфографику с первого фото"
+    },
+    {
+      "id": "no_watermark",
+      "label": "Нет водяных знаков",
+      "type": "no_watermark",
+      "weight": 5,
+      "severity": "fail",
+      "fix": "Уберите вотермарки"
+    }
+  ]
+}
