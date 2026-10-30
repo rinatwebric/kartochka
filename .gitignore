@@ -30,3 +30,8 @@ next-env.d.ts
 .DS_Store
 *.pem
 /tmp/
+
+# pipeline artifacts (восстанавливаются прогоном pnpm check:pipeline)
+*.mask.png
+*.main.jpg
+*.white.png
