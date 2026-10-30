@@ -3,6 +3,7 @@ import { extname, join } from "node:path";
 import { z } from "zod";
 import { isMock } from "../env";
 import { askSpark } from "../models/spark";
+import { getActivePromptSet } from "../prompts/registry";
 import {
   checklistItemSchema,
   type Borders,
@@ -328,19 +329,6 @@ function extractJsonObject(text: string): unknown {
   return JSON.parse(text.slice(start, end + 1)) as unknown;
 }
 
-const VISION_PROMPT: Record<VisionCheckId, string> = {
-  no_text_on_main:
-    "На фото есть текст, цифры, инфографика, плашки, рамки, коллажи, стикеры? Ответь СТРОГО одним JSON без пояснений: " +
-    '{"ok": true/false (true = чисто, ничего нет), "confident": true/false, "bbox": {"x":0..1,"y":0..1,"width":0..1,"height":0..1} или null, "reason": "коротко что видишь"}. ' +
-    "При сомнениях ставь confident=false.",
-  no_watermark:
-    "На фото есть водяные знаки, чужие логотипы, копирайты? Ответь СТРОГО одним JSON без пояснений: " +
-    '{"ok": true/false (true = чисто), "confident": true/false, "bbox": {...} или null, "reason": "коротко"}. При сомнениях confident=false.',
-  single_object:
-    "Сколько отдельных товаров в кадре? Ответь СТРОГО одним JSON без пояснений: " +
-    '{"ok": true/false (true = ровно один товар), "confident": true/false, "bbox": {бокс товара} или null, "reason": "коротко"}. При сомнениях confident=false.',
-};
-
 const MOCK_VISION: VisionMap = {
   no_text_on_main: { ok: true, bbox: null, reason: "mock: текста, рамок и инфографики нет" },
   no_watermark: { ok: true, bbox: null, reason: "mock: водяных знаков нет" },
@@ -352,14 +340,15 @@ const MOCK_VISION: VisionMap = {
 };
 
 // Вердикт vision по одному пункту: в mock — детерминированный pass,
-// вживую — через muse-spark с обязательным reason; без уверенности — честный провал.
+// вживую — через muse-spark строгим JSON {ok,confident,bbox,reason} по тексту
+// из активного набора промптов; без уверенности — честный провал.
 export async function judgeVisionCheck(imageB64: string, checkId: VisionCheckId): Promise<VisionVerdict> {
   if (isMock()) {
     return MOCK_VISION[checkId];
   }
   let text: string;
   try {
-    text = await askSpark(VISION_PROMPT[checkId], imageB64);
+    text = await askSpark(getActivePromptSet().visionPrompt(checkId), imageB64);
   } catch (err) {
     return {
       ok: false,

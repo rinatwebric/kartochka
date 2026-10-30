@@ -3,6 +3,7 @@ import { extname, join } from "node:path";
 import { z } from "zod";
 import { isMock } from "../env";
 import { SPARK_MODEL, askSpark } from "../models/spark";
+import { getActivePromptSet } from "../prompts/registry";
 import { loadJob, readStepResult, saveJob } from "./state";
 import { marketplaceSchema } from "./types";
 
@@ -195,22 +196,6 @@ function mockCopyFor(limits: CopyLimits): Copy {
   return normalizeCopy(candidate, limits);
 }
 
-function buildCopyPrompt(args: {
-  marketplaceName: string;
-  category: string;
-  limits: CopyLimits;
-}): string {
-  return (
-    `Ты пишешь карточку товара для маркетплейса ${args.marketplaceName}. ` +
-    `Категория: ${args.category}. Смотри на фото и опиши именно этот товар, не выдумывай бренд и артикул. ` +
-    `Ответь СТРОГО одним JSON без пояснений: {"title": "...", "description": "...", "specs": {"ключ": "значение"}}. ` +
-    `Требования: title до ${args.limits.titleMax} символов; ` +
-    `description ${DESCRIPTION_SENTENCES_MIN}-${DESCRIPTION_SENTENCES_MAX} предложений, ` +
-    `до ${args.limits.descriptionMax} символов, без воды и без слова «идеальный» в любых формах; ` +
-    `specs ${SPECS_MIN}-${SPECS_MAX} пар «характеристика: значение», коротко и по делу.`
-  );
-}
-
 function extractJsonObject(text: string): unknown {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
@@ -254,10 +239,15 @@ export async function writeCopy(jobId: string, category = "товар"): Promise
     copy = mockCopyFor(limits);
   } else {
     const imagePath = await pickCopyImage(jobId, job.assets.source);
-    const prompt = buildCopyPrompt({
+    const prompt = getActivePromptSet().buildCopyPrompt({
       marketplaceName: marketplaceName(job.marketplace),
       category: category.trim().length > 0 ? category.trim() : "товар",
-      limits,
+      titleMax: limits.titleMax,
+      descriptionMax: limits.descriptionMax,
+      sentencesMin: DESCRIPTION_SENTENCES_MIN,
+      sentencesMax: DESCRIPTION_SENTENCES_MAX,
+      specsMin: SPECS_MIN,
+      specsMax: SPECS_MAX,
     });
     let text: string;
     try {
@@ -283,7 +273,7 @@ export async function writeCopy(jobId: string, category = "товар"): Promise
   await writeStepResult(jobId, "copy", copy);
   const current = await loadJob(jobId);
   current.copy = copy;
-  current.promptIds.copy = COPY_PROMPT_ID;
+  current.promptIds.copy = getActivePromptSet().copyId;
   await saveJob(current);
   return copy;
 }

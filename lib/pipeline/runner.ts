@@ -1,6 +1,7 @@
 import { getCreditsTotal } from "../models/meta";
+import { getPromptSet } from "../prompts/registry";
 import { composeCard } from "./compose";
-import { COPY_PROMPT_ID, writeCopy } from "./copy";
+import { writeCopy } from "./copy";
 import { IDENTITY_MAX_RETRIES, computeIdentity } from "./identity";
 import { inspectImage } from "./inspect";
 import { checkRules } from "./rules";
@@ -123,7 +124,7 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
         let retries = 0;
         while (!result.passed && retries < IDENTITY_MAX_RETRIES) {
           retries += 1;
-          composePromptId = "compose-v2-enhanced";
+          composePromptId = getPromptSet().composeEnhancedId;
           const recomposed = await composeCard(current.assets.source, segment.maskPath, current.marketplace);
           const rewhite = await fixWhiteBg(recomposed.outPath, recomposed.maskPath);
           await writeStepResult(current.id, "compose", recomposed);
@@ -143,7 +144,7 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
         current.metrics.identity = result.identity;
         current.metrics.retries += retries;
         current.promptIds.compose = composePromptId;
-        current.promptIds.identity = "identity-v1";
+        current.promptIds.identity = getPromptSet().identityId;
         current.assets.main = mainPath;
         await writeStepResult(current.id, step, { ...result, retries, attempts: retries + 1 });
         const measured = `identity ${result.identity.toFixed(3)} (порог 0.90)`;
@@ -183,7 +184,7 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
         const copy = await writeCopy(current.id);
         await writeStepResult(current.id, step, copy);
         current.copy = copy;
-        current.promptIds.copy = COPY_PROMPT_ID;
+        current.promptIds.copy = getPromptSet().copyId;
         break;
       }
       default:

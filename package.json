@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "evals": "echo \"evals: not implemented yet\"",
+    "evals": "tsx evals/run.ts",
     "check:pipeline": "tsx scripts/check-pipeline.ts",
     "check:identity": "tsx scripts/check-identity.ts",
     "check:rules": "tsx scripts/check-rules.ts",

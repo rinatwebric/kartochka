@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { z } from "zod";
 import { isMock } from "../env";
 import { judgeIdentity } from "../models/glimmer";
+import { getActivePromptSet } from "../prompts/registry";
 import { computePHashFromBuffer, phashSimilarity } from "../utils/phash";
 import { histogramCorrelation, hsvHistogramFromBuffer } from "../utils/hsv";
 import { ssimBetweenBuffers } from "../utils/ssim";
@@ -211,7 +212,7 @@ export async function computeIdentity(
     glimmerImage = await comparisonMontageB64(sourceCrop, mainCrop);
   }
   const glimmer = await judgeGlimmerMajority(
-    "Это один и тот же товар до и после замены фона? Слева ДО, справа ПОСЛЕ. Ответь строго JSON {same, reason}.",
+    getActivePromptSet().identityJudgePrompt,
     glimmerImage,
   );
   const contributions: IdentityContributions = {
@@ -238,7 +239,7 @@ export async function computeIdentity(
     },
     contributions,
     glimmerReason: glimmer.reason,
-    promptId: IDENTITY_PROMPT_ID,
+    promptId: getActivePromptSet().identityId,
     retries,
   });
 }

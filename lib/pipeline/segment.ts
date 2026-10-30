@@ -1,6 +1,7 @@
 import { dirname, join, parse } from "node:path";
 import sharp from "sharp";
 import { segmentWithSam } from "../models/sam";
+import { getActivePromptSet } from "../prompts/registry";
 import { decodeImageResult } from "../utils/image";
 import { backgroundColorFromBorders, type RawImage } from "../utils/image";
 import {
@@ -218,7 +219,8 @@ export async function segmentProduct(
   let mask: Uint8Array | null = null;
   let method: SegmentResult["method"] = "background-removal";
   try {
-    const sam = await segmentWithSam(sourceB64, category);
+    const prompt = getActivePromptSet().segmentPrompt(category);
+    const sam = await segmentWithSam(sourceB64, prompt);
     if (sam.mask?.b64 !== undefined) {
       mask = await samMaskPixels(sourcePath, sam.mask.b64, width, height);
       if (mask !== null) method = "sam-mask";

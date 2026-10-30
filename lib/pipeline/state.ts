@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
+import { getActivePromptSet } from "../prompts/registry";
 import {
   jobStateSchema,
   type JobState,
@@ -43,6 +44,7 @@ export function stepFilePath(jobId: string, step: JobStep): string {
 }
 
 function blankJob(id: string, marketplace: Marketplace, source: string): JobState {
+  const prompts = getActivePromptSet();
   return jobStateSchema.parse({
     id,
     marketplace,
@@ -61,7 +63,7 @@ function blankJob(id: string, marketplace: Marketplace, source: string): JobStat
     checklist: [],
     copy: { title: "", description: "", specs: {} },
     assets: { source },
-    promptIds: { compose: "compose-v1", identity: "identity-v1", copy: "copy-v1" },
+    promptIds: { compose: prompts.composeId, identity: prompts.identityId, copy: prompts.copyId },
     error: null,
   });
 }

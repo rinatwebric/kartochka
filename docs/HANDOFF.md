@@ -3,7 +3,7 @@
 Обновляется агентом в конце КАЖДОЙ задачи. Следующий чат начинается с чтения этого файла.
 
 ## Текущее состояние
-T7 выполнен 30.10.2026. Батч и публичная страница готовы: `pnpm build` — Compiled successfully; сквозной smoke на dev (MOCK): POST /api/jobs на 2 синтетических фото + все 7 шагов до copy (score 100/100), GET /batch 200 с кнопкой «Скачать всё», GET /r/&lt;id&gt; 200 с подписью «Сделано в КАРТОЧКА» и чек-листом, без кнопок редактирования, GET /r/неизвестный → 404; `pnpm check:rules` — без регрессий; grep по `any|@ts-ignore` в новых файлах — пусто. Следующая задача — T8 (eval-стенд и реестр промптов, MASTER.md раздел 10).
+T8 выполнен 30.10.2026. Реестр промптов v1/v2 и eval-стенд готовы: `pnpm evals --mock` — 20/20 кейсов (совпало с expect), json+csv созданы, сводка в консоли (прошло 12/20, средний score 94.0, худший amazon-01 score 80); `pnpm evals --mock --compare v1 v2` — Δ=0/Δ=0.0 п.п. (честно: mock обходит тексты промптов); регрессии `pnpm check:rules`, `check:copy-export`, `check:identity`, `check:pipeline` — без регрессий; `pnpm build` — Compiled successfully; grep по `any|@ts-ignore` в новых файлах — пусто. Следующая задача — T9 (полировка, деплой, README, сценарий видео, MASTER.md разделы 9, 10, 17).
 
 ## Что готово
 - T1 (лендинг), T2 (клиент моделей + MOCK) без изменений: собираются, `pnpm tsx scripts/check-models.ts` по-прежнему ок.
@@ -28,7 +28,13 @@ T7 выполнен 30.10.2026. Батч и публичная страница 
 - T7: `app/api/jobs/route.ts` (POST FormData files+marketplace → по джобе на файл, лимиты 20 файлов/15 МБ), `app/api/jobs/[id]/route.ts` (GET состояние), `app/api/jobs/[id]/step/route.ts` (POST {step} → runStep, StepError→статус); `app/batch/page.tsx` (клиентский оркестратор: создание джоб, последовательный прогон 7 шагов с шагом-меткой, таблица, «Скачать всё» — один ZIP с папками `NN-slug/`); `components/batch/batch-table.tsx` + `batch-summary.tsx` (презентация; «пройдёт» = done без красных пунктов); `lib/utils/slug.ts` (транслит для архива); `app/r/[id]/page.tsx` (read-only: кадр, чек-лист с замерами/fix, текст, «сделано в КАРТОЧКА за N с и M кредитов», 404 на неизвестный id; схема экспорта в батче локальная — полный модуль тянет node:fs в клиентский бандл).
 
  ## Что дальше
-T8: eval-стенд и реестр промптов (MASTER.md раздел 10).
+T9: полировка, деплой, README, сценарий видео (MASTER.md разделы 9, 10, 17).
+
+## T8 (готово 30.10.2026)
+- `lib/prompts/registry.ts` (+`v1.ts`, `v2.ts`): наборы промптов с `id`, версия из `PROMPT_VERSION` (дефолт v1); все вызовы моделей берут текст и id из реестра: segment (промпт категории), identity (judge-промпт + `promptId`), rules (vision-промпты), copy (билдер + `copyId`); `promptIds` в `job.json` и отчёте стенда.
+- `evals/cases.json`: 20 кейсов (7 wb pass, 7 ozon pass, 6 amazon fail, 2 wb fail-регрессии identity) на 3 synthetic-фикстурах, в каждом note пометка про синтетику и замер.
+- `evals/run.ts` (+`pnpm evals` = `tsx evals/run.ts`): режимы mock/live (live требует ключ), `--version`, `--compare v1 v2`; отчёт `<дата>-<режим>-<версия>.json` + `.csv` (строка на кейс: score/compliance/identity/credits/promptIds/failedChecks), сводка в консоль, exit 0 при полном прогоне.
+- Находки стенда: synthetic-3+wb identity 0.887<0.90 (pHash-плывун на ресемплинге, SSIM 0.987) — порог не тронут, кейсы wb-03/wb-06 зафиксированы как fail; amazon красный только по fill (score 80).
 
 ## Открытые вопросы
 - Живой ответ sam-3.1 (special-token маски) не виден без ключа — ветка `sam-mask` написана вслепую по DECISIONS T2 и отработает только при совпадении формата; первый живой прогон делать осторожно, смотреть `method` в отчёте.

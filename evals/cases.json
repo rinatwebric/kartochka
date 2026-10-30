@@ -1,1 +1,22 @@
-[]
+[
+  { "id": "wb-01", "file": "fixtures/photos/synthetic-1.jpg", "marketplace": "wb", "expect": "pass", "note": "синтетическая фикстура sharp (красный товар на ковре), живых фото нет; кадр 3:4 собирается из правил wb, ожидается pass" },
+  { "id": "wb-02", "file": "fixtures/photos/synthetic-2.jpg", "marketplace": "wb", "expect": "pass", "note": "синтетическая фикстура sharp (синий круглый товар), живых фото нет; ожидается pass" },
+  { "id": "wb-03", "file": "fixtures/photos/synthetic-3.jpg", "marketplace": "wb", "expect": "fail", "note": "синтетическая фикстура sharp (зелёный высокий товар), живых фото нет; ЗАМЕРЕНО: identity 0.887 < 0.90 (pHash 20 бит на ресемплинге тонкой синтетики через mock-бокс, SSIM 0.987 — товар тот же); порог не трогаем, кейс locks поведение как регрессия" },
+  { "id": "wb-04", "file": "fixtures/photos/synthetic-1.jpg", "marketplace": "wb", "expect": "pass", "note": "синтетическая фикстура sharp, повторный прогон того же файла для стабильности mock; ожидается pass" },
+  { "id": "wb-05", "file": "fixtures/photos/synthetic-2.jpg", "marketplace": "wb", "expect": "pass", "note": "синтетическая фикстура sharp, повторный прогон того же файла для стабильности mock; ожидается pass" },
+  { "id": "wb-06", "file": "fixtures/photos/synthetic-3.jpg", "marketplace": "wb", "expect": "fail", "note": "синтетическая фикстура sharp, повтор замера wb-03 для стабильности mock (детерминированно тот же identity 0.887); ожидается fail" },
+  { "id": "wb-07", "file": "fixtures/photos/synthetic-1.jpg", "marketplace": "wb", "expect": "pass", "note": "синтетическая фикстура sharp; контроль fill после compose (~0.63 в норме wb 0.60-0.90); ожидается pass" },
+  { "id": "ozon-01", "file": "fixtures/photos/synthetic-1.jpg", "marketplace": "ozon", "expect": "pass", "note": "синтетическая фикстура sharp, живых фото нет; холст берётся из правил ozon (3:4), ожидается pass" },
+  { "id": "ozon-02", "file": "fixtures/photos/synthetic-2.jpg", "marketplace": "ozon", "expect": "pass", "note": "синтетическая фикстура sharp, живых фото нет; ожидается pass" },
+  { "id": "ozon-03", "file": "fixtures/photos/synthetic-3.jpg", "marketplace": "ozon", "expect": "pass", "note": "синтетическая фикстура sharp, живых фото нет; ожидается pass" },
+  { "id": "ozon-04", "file": "fixtures/photos/synthetic-2.jpg", "marketplace": "ozon", "expect": "pass", "note": "синтетическая фикстура sharp, повторный прогон для стабильности mock; ожидается pass" },
+  { "id": "ozon-05", "file": "fixtures/photos/synthetic-3.jpg", "marketplace": "ozon", "expect": "pass", "note": "синтетическая фикстура sharp, повторный прогон для стабильности mock; ожидается pass" },
+  { "id": "ozon-06", "file": "fixtures/photos/synthetic-1.jpg", "marketplace": "ozon", "expect": "pass", "note": "синтетическая фикстура sharp; у ozon мягкий min_size 200px, ожидается pass" },
+  { "id": "ozon-07", "file": "fixtures/photos/synthetic-2.jpg", "marketplace": "ozon", "expect": "pass", "note": "синтетическая фикстура sharp; mock-vision даёт pass по всем трём vision-пунктам, ожидается pass" },
+  { "id": "amazon-01", "file": "fixtures/photos/synthetic-1.jpg", "marketplace": "amazon", "expect": "fail", "note": "синтетическая фикстура sharp, живых фото нет; ЗАМЕРЕНО: красный только fill (~0.63 при норме amazon от 0.85), aspect и min_size проходят на холсте 2000x2000; ожидается fail" },
+  { "id": "amazon-02", "file": "fixtures/photos/synthetic-2.jpg", "marketplace": "amazon", "expect": "fail", "note": "синтетическая фикстура sharp; ЗАМЕРЕНО: красный только fill, ожидается fail" },
+  { "id": "amazon-03", "file": "fixtures/photos/synthetic-3.jpg", "marketplace": "amazon", "expect": "fail", "note": "синтетическая фикстура sharp; ЗАМЕРЕНО: красный только fill, ожидается fail" },
+  { "id": "amazon-04", "file": "fixtures/photos/synthetic-1.jpg", "marketplace": "amazon", "expect": "fail", "note": "синтетическая фикстура sharp, повторный прогон для стабильности mock; ожидается fail" },
+  { "id": "amazon-05", "file": "fixtures/photos/synthetic-2.jpg", "marketplace": "amazon", "expect": "fail", "note": "синтетическая фикстура sharp; строгая норма amazon по fill (от 0.85) не выполняется при mock-боксе 0.5x0.7; ожидается fail" },
+  { "id": "amazon-06", "file": "fixtures/photos/synthetic-3.jpg", "marketplace": "amazon", "expect": "fail", "note": "синтетическая фикстура sharp; худший кейс стенда по score (80: красный fill), ожидается fail" }
+]

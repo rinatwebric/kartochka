@@ -1,0 +1,455 @@
+{
+  "tool": "kartochka-evals",
+  "generatedAt": "2026-10-30T12:43:58.617Z",
+  "mode": "mock",
+  "promptVersion": "v2",
+  "summary": {
+    "total": 20,
+    "predictedPass": 12,
+    "matchCount": 20,
+    "mismatchCount": 0,
+    "passRate": 0.6,
+    "avgScore": 94,
+    "avgCredits": 0,
+    "worstCaseId": "amazon-01",
+    "worstScore": 80
+  },
+  "cases": [
+    {
+      "id": "wb-01",
+      "file": "fixtures/photos/synthetic-1.jpg",
+      "marketplace": "wb",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9441349247430244,
+      "credits": 0,
+      "ms": 1862,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "wb-02",
+      "file": "fixtures/photos/synthetic-2.jpg",
+      "marketplace": "wb",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.911413607686579,
+      "credits": 0,
+      "ms": 1739,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "wb-03",
+      "file": "fixtures/photos/synthetic-3.jpg",
+      "marketplace": "wb",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.8873198333431446,
+      "credits": 0,
+      "ms": 3089,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2-retry",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "identity"
+      ],
+      "error": null
+    },
+    {
+      "id": "wb-04",
+      "file": "fixtures/photos/synthetic-1.jpg",
+      "marketplace": "wb",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9441349247430244,
+      "credits": 0,
+      "ms": 1450,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "wb-05",
+      "file": "fixtures/photos/synthetic-2.jpg",
+      "marketplace": "wb",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.911413607686579,
+      "credits": 0,
+      "ms": 1612,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "wb-06",
+      "file": "fixtures/photos/synthetic-3.jpg",
+      "marketplace": "wb",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.8873198333431446,
+      "credits": 0,
+      "ms": 3565,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2-retry",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "identity"
+      ],
+      "error": null
+    },
+    {
+      "id": "wb-07",
+      "file": "fixtures/photos/synthetic-1.jpg",
+      "marketplace": "wb",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9441349247430244,
+      "credits": 0,
+      "ms": 1748,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "ozon-01",
+      "file": "fixtures/photos/synthetic-1.jpg",
+      "marketplace": "ozon",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9441224563222748,
+      "credits": 0,
+      "ms": 1929,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "ozon-02",
+      "file": "fixtures/photos/synthetic-2.jpg",
+      "marketplace": "ozon",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9221532062792965,
+      "credits": 0,
+      "ms": 1382,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "ozon-03",
+      "file": "fixtures/photos/synthetic-3.jpg",
+      "marketplace": "ozon",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9078745215661267,
+      "credits": 0,
+      "ms": 1686,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "ozon-04",
+      "file": "fixtures/photos/synthetic-2.jpg",
+      "marketplace": "ozon",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9221532062792965,
+      "credits": 0,
+      "ms": 1741,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "ozon-05",
+      "file": "fixtures/photos/synthetic-3.jpg",
+      "marketplace": "ozon",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9078745215661267,
+      "credits": 0,
+      "ms": 1427,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "ozon-06",
+      "file": "fixtures/photos/synthetic-1.jpg",
+      "marketplace": "ozon",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9441224563222748,
+      "credits": 0,
+      "ms": 1551,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "ozon-07",
+      "file": "fixtures/photos/synthetic-2.jpg",
+      "marketplace": "ozon",
+      "expect": "pass",
+      "predicted": "pass",
+      "match": true,
+      "score": 100,
+      "compliance": 1,
+      "identity": 0.9221532062792965,
+      "credits": 0,
+      "ms": 1707,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [],
+      "error": null
+    },
+    {
+      "id": "amazon-01",
+      "file": "fixtures/photos/synthetic-1.jpg",
+      "marketplace": "amazon",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 80,
+      "compliance": 0.8,
+      "identity": 0.9115725386058069,
+      "credits": 0,
+      "ms": 1553,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "fill"
+      ],
+      "error": null
+    },
+    {
+      "id": "amazon-02",
+      "file": "fixtures/photos/synthetic-2.jpg",
+      "marketplace": "amazon",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 80,
+      "compliance": 0.8,
+      "identity": 0.9005635833114951,
+      "credits": 0,
+      "ms": 1633,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "fill"
+      ],
+      "error": null
+    },
+    {
+      "id": "amazon-03",
+      "file": "fixtures/photos/synthetic-3.jpg",
+      "marketplace": "amazon",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 80,
+      "compliance": 0.8,
+      "identity": 0.9200873666611915,
+      "credits": 0,
+      "ms": 1539,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "fill"
+      ],
+      "error": null
+    },
+    {
+      "id": "amazon-04",
+      "file": "fixtures/photos/synthetic-1.jpg",
+      "marketplace": "amazon",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 80,
+      "compliance": 0.8,
+      "identity": 0.9115725386058069,
+      "credits": 0,
+      "ms": 1573,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "fill"
+      ],
+      "error": null
+    },
+    {
+      "id": "amazon-05",
+      "file": "fixtures/photos/synthetic-2.jpg",
+      "marketplace": "amazon",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 80,
+      "compliance": 0.8,
+      "identity": 0.9005635833114951,
+      "credits": 0,
+      "ms": 1681,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "fill"
+      ],
+      "error": null
+    },
+    {
+      "id": "amazon-06",
+      "file": "fixtures/photos/synthetic-3.jpg",
+      "marketplace": "amazon",
+      "expect": "fail",
+      "predicted": "fail",
+      "match": true,
+      "score": 80,
+      "compliance": 0.8,
+      "identity": 0.9200873666611915,
+      "credits": 0,
+      "ms": 1860,
+      "promptVersion": "v2",
+      "promptIds": {
+        "compose": "compose-v2",
+        "identity": "identity-v2",
+        "copy": "copy-v2"
+      },
+      "failedChecks": [
+        "fill"
+      ],
+      "error": null
+    }
+  ]
+}
