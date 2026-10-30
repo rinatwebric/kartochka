@@ -3,7 +3,7 @@
 Обновляется агентом в конце КАЖДОЙ задачи. Следующий чат начинается с чтения этого файла.
 
 ## Текущее состояние
-T4 выполнен 30.10.2026. Identity gate готов: `pnpm check:identity` — same 0.9441 (≥0.90 PASS), substituted 0.5425 (<0.90), retry-loop 2 ретрая + красный checklist; `pnpm check:pipeline` — 3/3 PASS без изменений; `pnpm build` — Compiled successfully. Следующая задача — T5 (движок регламента rules + checklist + fix hints).
+T5 выполнен 30.10.2026. Движок регламента готов: `pnpm check:rules` — wb/ozon PASS 100, amazon FAIL 55 (aspect/min_size/fill, ожидаемо), плохой кадр ловится (not_cropped + no_text_on_main), временный rules/test.json работает без правки кода; `pnpm build` — Compiled successfully; `pnpm check:pipeline` и `pnpm check:identity` — без регрессий. Следующая задача — T6 (текст карточки и экспорт, MASTER.md разделы 5 и 9).
 
 ## Что готово
 - T1 (лендинг), T2 (клиент моделей + MOCK) без изменений: собираются, `pnpm tsx scripts/check-models.ts` по-прежнему ок.
@@ -22,9 +22,11 @@ T4 выполнен 30.10.2026. Identity gate готов: `pnpm check:identity` 
 - T4: `lib/utils/phash.ts` (DCT 32x32→8x8, медиана по 63 AC, bigint-hex, hamming 0..64), `lib/utils/hsv.ts` (H16/S4/V4=256, Пирсон), `lib/utils/ssim.ts` (настоящий SSIM, окно 8x8 на 256, `ssimOnMask` по покрытию >50%).
 - T4: `lib/pipeline/identity.ts` (формула 0.35/0.25/0.25/0.15, порог 0.90; кропы по bbox с инсетом 3%; glimmer 3 голоса; `IDENTITY_FORCE_FAIL=1`; `identityResultSchema`).
 - T4: петля в runner (identity<0.90 → до 2 ретраев `compose-v2-enhanced`, `attempts.identity`, `metrics.retries`, красный checklist); `scripts/check-identity.ts` + `pnpm check:identity` (same 0.9441 PASS, substituted 0.5425 FAIL-ожидаемо, loop retries=2).
+- T5: `lib/pipeline/rules.ts` (пороги только из rules/*.json; кодовые типы pixels_white/aspect/min_size/fill/not_cropped; vision-типы no_text_on_main/no_watermark/single_object через `askSpark` строгим JSON {ok,confident,bbox,reason}, без уверенности — честный провал, mock — детерминированный pass; `evaluateMarketplace`/`summarize`/`checkMarketplace`/`judgeAllVision`/`checkRules(jobId)`; compliance = веса пройденных/все, score = round(*100)).
+- T5: шаг `rules` в runner (замеры из compose+whitebg+maskTouchesBorders, vision по финальному кадру, пишет metrics.compliance/score + checklist, статус done); `scripts/check-rules.ts` + `pnpm check:rules` (таблица пункт/замер/ок, кейс «Ozon PASS / Amazon FAIL», временный rules/test.json без правки кода, exit 1 при расхождении).
 
 ## Что дальше
-T5: движок регламента, чек-лист, fix hints (MASTER.md раздел 7; скиллы to-spec, test-driven-development). Задел: identity пишет пункт `identity` (weight 0) и `metrics.identity/retries`; финалы `<src>.main.white.png` + маски — под `pixels_white`/`fill`/`not_cropped`.
+T6: текст карточки и экспорт (MASTER.md разделы 5 и 9; скилл frontend-design для блока экспорта). Задел: rules пишет пункты с id/label/measured/weight/fix/reason и metrics.compliance/score — checklist и fix-hints в UI берут их как есть; финалы `<src>.main.white.png` + маски лежат в assets.
 
 ## Открытые вопросы
 - Живой ответ sam-3.1 (special-token маски) не виден без ключа — ветка `sam-mask` написана вслепую по DECISIONS T2 и отработает только при совпадении формата; первый живой прогон делать осторожно, смотреть `method` в отчёте.

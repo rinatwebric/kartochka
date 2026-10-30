@@ -2,6 +2,7 @@ import { getCreditsTotal } from "../models/meta";
 import { composeCard } from "./compose";
 import { IDENTITY_MAX_RETRIES, computeIdentity } from "./identity";
 import { inspectImage } from "./inspect";
+import { checkRules } from "./rules";
 import { fixWhiteBg } from "./whitebg";
 import { segmentProduct } from "./segment";
 import {
@@ -20,19 +21,19 @@ import {
   type WhitebgResult,
 } from "./types";
 
-// Оркестратор шагов T3+T4: inspect -> segment -> compose -> whitebg -> identity.
+// Оркестратор шагов T3+T4+T5: inspect -> segment -> compose -> whitebg -> identity -> rules.
 // Идемпотентность: повторный вызов перезаписывает результат шага и поля джобы.
 // Возобновление: шаг требует готовый результат предыдущего, иначе 409 со списком.
 // Identity: при провале (< 0.90) перегенерирует главный кадр с усиленным
 // промптом, максимум 2 ретрая. Compose детерминированный (вариант B), поэтому
 // ретрай структурный: пересчёт mask->compose->whitebg->identity, попытка
 // засчитывается, promptId фиксирует усиление.
-const IMPLEMENTED_STEPS: JobStep[] = ["inspect", "segment", "compose", "whitebg", "identity"];
+const IMPLEMENTED_STEPS: JobStep[] = ["inspect", "segment", "compose", "whitebg", "identity", "rules"];
 
 function requireLaterStep(step: JobStep): never {
   throw new StepError(
     409,
-    `Шаг «${step}» относится к следующим задачам (T5+) и пока не реализован. Доступны: inspect, segment, compose, whitebg, identity.`,
+    `Шаг «${step}» относится к следующим задачам (T6+) и пока не реализован. Доступны: inspect, segment, compose, whitebg, identity, rules.`,
     [],
   );
 }
@@ -155,6 +156,18 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
         ];
         break;
       }
+      case "rules": {
+        const result = await checkRules(current.id);
+        await writeStepResult(current.id, step, result);
+        current.metrics.compliance = result.compliance;
+        current.metrics.score = result.score;
+        const ruleIds = new Set(result.checklist.map((c) => c.id));
+        current.checklist = [
+          ...current.checklist.filter((c) => !ruleIds.has(c.id)),
+          ...result.checklist,
+        ];
+        break;
+      }
       default:
         requireLaterStep(step);
     }
@@ -173,7 +186,7 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
   }
   const creditsAfter = getCreditsTotal();
   current.step = step;
-  current.status = step === "whitebg" || step === "identity" ? "done" : "running";
+  current.status = step === "whitebg" || step === "identity" || step === "rules" ? "done" : "running";
   current.metrics.ms += Date.now() - started;
   current.metrics.credits += creditsAfter - creditsBefore;
   current.error = null;
