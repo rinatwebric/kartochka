@@ -21,8 +21,10 @@ export type ImageResult = z.infer<typeof imageResultSchema>;
 
 export const samResultSchema = z.object({
   // SAM 3.1 через Responses API отдаёт special-token текст с боксами и масками
-  // (см. docs/DECISIONS.md): сырой текст обязателен, геометрия — по мере парсинга.
-  raw: z.string().min(1),
+  // (https://dev.meta.ai/docs/sam/reading-segmentation): пустой output_text —
+  // ноль совпадений, штатный исход, а не ошибка (raw "" разрешён).
+  // Геометрия — по мере парсинга боксов из raw.
+  raw: z.string(),
   boxes: z
     .array(
       z.object({

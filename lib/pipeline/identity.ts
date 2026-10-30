@@ -7,7 +7,8 @@
 import sharp from "sharp";
 import { z } from "zod";
 import { isMock } from "../env";
-import { judgeIdentity } from "../models/glimmer";
+import { GLIMMER_MODEL, judgeIdentity } from "../models/glimmer";
+import { ModelError } from "../models/meta";
 import { getActivePromptSet } from "../prompts/registry";
 import { computePHashFromBuffer, phashSimilarity } from "../utils/phash";
 import { histogramCorrelation, hsvHistogramFromBuffer } from "../utils/hsv";
@@ -15,6 +16,12 @@ import { ssimBetweenBuffers } from "../utils/ssim";
 
 export const IDENTITY_THRESHOLD = 0.9;
 export const IDENTITY_WEIGHTS = { phash: 0.35, hsv: 0.25, ssim: 0.25, glimmer: 0.15 } as const;
+// Glimmer — open-weight для self-host, через Model API отвечает 404
+// (https://dev.meta.ai/docs, проверено живьём 30.10.2026). При abstain три
+// оставшихся сигнала перенормируются на 1/(1-0.15) — относительные веса и
+// порог 0.90 не меняются, вклад glimmer = 0. Расхождение с MASTER.md §8
+// зафиксировано в docs/DECISIONS.md: правда у документации.
+export const IDENTITY_ABSTAIN_SCALE = 1 / (1 - IDENTITY_WEIGHTS.glimmer);
 export const IDENTITY_PROMPT_ID = "identity-v1";
 export const IDENTITY_COMPOSE_ENHANCED_ID = "compose-v2-enhanced";
 export const IDENTITY_MAX_RETRIES = 2;
@@ -28,6 +35,7 @@ export const identityBreakdownSchema = z.object({
   ssim: z.number().min(0).max(1),
   glimmerSame: z.boolean(),
   glimmerVotes: z.number().int().min(0).max(3),
+  glimmerAbstained: z.boolean().optional(),
 });
 export type IdentityBreakdown = z.infer<typeof identityBreakdownSchema>;
 
@@ -131,16 +139,32 @@ export interface GlimmerMajority {
   same: boolean;
   votes: number;
   reason: string;
+  abstained?: boolean;
 }
 
 // Glimmer трижды, побеждает большинство. Тестовый крюк IDENTITY_FORCE_FAIL=1
 // заставляет вернуть same=false (петля ретраев проверяется без живой модели).
+// Живой 404 (модели нет на Model API — она self-host) — не ошибка пайплайна,
+// а abstain: computeIdentity перенормирует три кодовых сигнала.
 export async function judgeGlimmerMajority(prompt: string, imageB64?: string): Promise<GlimmerMajority> {
   if (process.env.IDENTITY_FORCE_FAIL === "1") {
     return { same: false, votes: 0, reason: "forced fail for retry-loop test (IDENTITY_FORCE_FAIL=1)" };
   }
   const calls = [0, 1, 2].map(() => judgeIdentity(prompt, imageB64));
-  const verdicts = await Promise.all(calls);
+  let verdicts;
+  try {
+    verdicts = await Promise.all(calls);
+  } catch (err) {
+    if (err instanceof ModelError && err.status === 404 && err.model === GLIMMER_MODEL) {
+      return {
+        same: false,
+        votes: 0,
+        reason: "glimmer abstained: модель self-host only, через Model API 404 — вес передан трём кодовым сигналам",
+        abstained: true,
+      };
+    }
+    throw err;
+  }
   const yes = verdicts.filter((v) => v.same).length;
   const same = yes >= 2;
   const reason = (same
@@ -215,11 +239,13 @@ export async function computeIdentity(
     getActivePromptSet().identityJudgePrompt,
     glimmerImage,
   );
+  const abstained = glimmer.abstained === true;
+  const scale = abstained ? IDENTITY_ABSTAIN_SCALE : 1;
   const contributions: IdentityContributions = {
-    phash: IDENTITY_WEIGHTS.phash * phashSimilarityScore,
-    hsv: IDENTITY_WEIGHTS.hsv * hsvScore,
-    ssim: IDENTITY_WEIGHTS.ssim * ssim,
-    glimmer: IDENTITY_WEIGHTS.glimmer * (glimmer.same ? 1 : 0),
+    phash: IDENTITY_WEIGHTS.phash * phashSimilarityScore * scale,
+    hsv: IDENTITY_WEIGHTS.hsv * hsvScore * scale,
+    ssim: IDENTITY_WEIGHTS.ssim * ssim * scale,
+    glimmer: abstained ? 0 : IDENTITY_WEIGHTS.glimmer * (glimmer.same ? 1 : 0),
   };
   const identity = Math.max(
     0,
@@ -236,6 +262,7 @@ export async function computeIdentity(
       ssim,
       glimmerSame: glimmer.same,
       glimmerVotes: glimmer.votes,
+      ...(abstained ? { glimmerAbstained: true as const } : {}),
     },
     contributions,
     glimmerReason: glimmer.reason,

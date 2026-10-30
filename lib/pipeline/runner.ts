@@ -148,10 +148,14 @@ export async function runStep(job: JobState, step: JobStep): Promise<JobState> {
         current.assets.main = mainPath;
         await writeStepResult(current.id, step, { ...result, retries, attempts: retries + 1 });
         const measured = `identity ${result.identity.toFixed(3)} (порог 0.90)`;
+        const glimmerNote =
+          result.breakdown.glimmerAbstained === true
+            ? "glimmer abstained (self-host only)"
+            : `glimmer ${result.breakdown.glimmerSame ? "same" : "different"} ${result.breakdown.glimmerVotes}/3`;
         const reason =
           `pHash ${result.breakdown.phashSimilarity.toFixed(3)} (биты ${result.breakdown.phashBits}), ` +
           `HSV ${result.breakdown.hsvScore.toFixed(3)}, SSIM ${result.breakdown.ssim.toFixed(3)}, ` +
-          `glimmer ${result.breakdown.glimmerSame ? "same" : "different"} ${result.breakdown.glimmerVotes}/3`;
+          glimmerNote;
         current.checklist = [
           ...current.checklist.filter((c) => c.id !== "identity"),
           result.passed
